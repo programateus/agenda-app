@@ -13,7 +13,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfra(this IServiceCollection services,  IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddDbContextPool<AppDbContext>(options =>
         {
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         });

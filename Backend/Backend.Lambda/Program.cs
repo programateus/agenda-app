@@ -5,6 +5,7 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfra(builder.Configuration);
@@ -27,11 +28,5 @@ if (!app.Environment.IsEnvironment("Lambda"))
 
 app.UseAuthorization();
 app.MapControllers();
-
-app.MapGet("/", () => Results.Ok(new
-{
-    Name = "Scheduling API",
-    Status = "Running"
-}));
 
 app.Run();
