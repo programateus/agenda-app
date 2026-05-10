@@ -1,5 +1,7 @@
 import { BrowserRouter, useRoutes } from "react-router";
 import { Toast } from "@heroui/react";
+
+import { HeroUIProvider } from "./providers/HeroUIProvider";
 import { router } from "./router";
 
 const Routes = () => {
@@ -9,8 +11,10 @@ const Routes = () => {
 function App() {
   return (
     <BrowserRouter>
-      <Toast.Provider />
-      <Routes />
+      <HeroUIProvider>
+        <Toast.Provider />
+        <Routes />
+      </HeroUIProvider>
     </BrowserRouter>
   );
 }

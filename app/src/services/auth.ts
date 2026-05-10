@@ -13,3 +13,16 @@ export const signUp = async (payload: SignUpRequest) => {
 
   return data;
 };
+
+export type SignInRequest = {
+  email: string;
+  password: string;
+};
+
+export type SignInResponse = ApiResponse<{ accessToken: string }>;
+
+export const signIn = async (payload: SignInRequest) => {
+  const { data } = await api.post<SignInResponse>("/auth/sign-in", payload);
+
+  return data;
+};

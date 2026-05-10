@@ -4,6 +4,7 @@ import {
   Form,
   Input,
   Label,
+  Link,
   Surface,
   TextField,
   toast,
@@ -11,9 +12,9 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useSignUpMutation } from "@/hooks/reactQuery/signUpMutation";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router";
+import { useSignUpMutation } from "@/hooks/reactQuery/auth/useSignUpMutation";
 
 const signUpSchema = z
   .object({
@@ -84,7 +85,7 @@ export const SignUpPage = () => {
 
   return (
     <div className="h-screen w-full flex items-center justify-center">
-      <Surface className="p-6 rounded-3xl min-w-lg">
+      <Surface className="p-6 rounded-3xl w-lg">
         <Form onSubmit={onSubmit(handleSubmit)} className="space-y-4">
           <h1 className="text-xl text-center font-bold">Sign Up</h1>
 
@@ -178,6 +179,9 @@ export const SignUpPage = () => {
           <Button fullWidth type="submit" isDisabled={isPending}>
             {isPending ? "Creating account..." : "Sign Up"}
           </Button>
+          <p className="text-center">
+            Already have an account? <Link href="/sign-in">Sign In</Link>
+          </p>
         </Form>
       </Surface>
     </div>

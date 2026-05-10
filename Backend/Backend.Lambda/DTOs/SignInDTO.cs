@@ -1,7 +1,6 @@
 ﻿namespace Backend.Lambda.DTOs;
 
-public sealed record SignUpDTO(
-    string Name,
+public sealed record SignInDTO(
     string Email,
     string Password
 );

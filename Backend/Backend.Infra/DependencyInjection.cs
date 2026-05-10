@@ -1,5 +1,7 @@
-﻿using Backend.Application.Contracts.Security;
+﻿using Backend.Application.Contracts.Auth;
+using Backend.Application.Contracts.Security;
 using Backend.Domain.Repositories;
+using Backend.Infra.Auth;
 using Backend.Infra.Database;
 using Backend.Infra.Database.Repositories;
 using Backend.Infra.Security;
@@ -17,9 +19,14 @@ public static class DependencyInjection
         {
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         });
+        
+        services.Configure<JwtOptions>(
+            configuration.GetSection("Jwt")
+        );
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPasswordHasher, BcryptAdapter>();
+        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         return services;
     }
 }
