@@ -6,10 +6,14 @@ import {
   Label,
   Surface,
   TextField,
+  toast,
 } from "@heroui/react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useSignUpMutation } from "@/hooks/reactQuery/signUpMutation";
+import { AxiosError } from "axios";
+import { useNavigate } from "react-router";
 
 const signUpSchema = z
   .object({
@@ -43,7 +47,7 @@ export const SignUpPage = () => {
     control,
     getValues,
     handleSubmit: onSubmit,
-    formState: { isSubmitting },
+    setError,
     trigger,
   } = useForm({
     resolver: zodResolver(signUpSchema),
@@ -55,9 +59,27 @@ export const SignUpPage = () => {
     },
     mode: "onBlur",
   });
+  const { mutateAsync: signUp, isPending } = useSignUpMutation();
+  const navigate = useNavigate();
 
-  const handleSubmit = (data: SignUpFormData) => {
-    console.log(data);
+  const handleSubmit = async (data: SignUpFormData) => {
+    try {
+      await signUp({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
+      toast.success("Account created");
+      navigate("/sign-in");
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        if (e.response?.status === 409) {
+          setError("email", { message: "Email already in use" });
+          return;
+        }
+      }
+      toast.danger("There was an error when Signing Up");
+    }
   };
 
   return (
@@ -112,6 +134,7 @@ export const SignUpPage = () => {
             render={({ field, fieldState }) => (
               <TextField
                 isRequired
+                type="password"
                 name={field.name}
                 value={field.value}
                 onChange={(value) => {
@@ -137,6 +160,7 @@ export const SignUpPage = () => {
             render={({ field, fieldState }) => (
               <TextField
                 isRequired
+                type="password"
                 name={field.name}
                 value={field.value}
                 onChange={field.onChange}
@@ -151,8 +175,8 @@ export const SignUpPage = () => {
             )}
           />
 
-          <Button fullWidth type="submit" isDisabled={isSubmitting}>
-            Sign Up
+          <Button fullWidth type="submit" isDisabled={isPending}>
+            {isPending ? "Creating account..." : "Sign Up"}
           </Button>
         </Form>
       </Surface>
