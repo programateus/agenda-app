@@ -2,7 +2,7 @@ import { Outlet } from "react-router";
 
 export const DashboardLayout = () => {
   return (
-    <div>
+    <div className="h-dvh overflow-hidden">
       <Outlet />
     </div>
   );
