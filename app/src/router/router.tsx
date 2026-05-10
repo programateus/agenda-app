@@ -6,8 +6,8 @@ import { AuthGuard } from "@/guards/AuthGuard";
 import { GuestGuard } from "@/guards/GuestGuard";
 
 import { SignUpPage } from "@/pages/SignUp";
-import { Dashboard } from "@/pages/Dashboard";
 import { SignInPage } from "@/pages/SignIn";
+import { DashboardPage } from "@/pages/Dashboard";
 
 export const router: RouteObject[] = [
   {
@@ -31,7 +31,7 @@ export const router: RouteObject[] = [
         children: [
           {
             index: true,
-            element: <Dashboard />,
+            element: <DashboardPage />,
           },
         ],
       },
