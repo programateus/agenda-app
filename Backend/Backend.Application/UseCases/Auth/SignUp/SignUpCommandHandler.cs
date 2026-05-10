@@ -5,7 +5,7 @@ using Backend.Domain.Repositories;
 using CSharpFunctionalExtensions;
 using MediatR;
 
-namespace Backend.Application.UseCases.SignUp;
+namespace Backend.Application.UseCases.Auth.SignUp;
 
 public class SignUpCommandHandler : IRequestHandler<SignUpCommand, Result<SignUpResult, ApiError>>
 {

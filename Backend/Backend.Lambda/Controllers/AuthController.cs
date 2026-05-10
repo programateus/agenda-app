@@ -1,10 +1,10 @@
 ﻿using System.Security.Claims;
-using Backend.Application.UseCases.MyProfile;
-using Backend.Application.UseCases.SignIn;
+using Backend.Application.UseCases.Auth.MyProfile;
+using Backend.Application.UseCases.Auth.SignIn;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Lambda.DTOs;
-using Backend.Application.UseCases.SignUp;
+using Backend.Application.UseCases.Auth.SignUp;
 using Backend.Lambda.Extensions;
 using Microsoft.AspNetCore.Authorization;
 

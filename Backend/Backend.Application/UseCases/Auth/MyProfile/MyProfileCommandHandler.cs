@@ -3,7 +3,7 @@ using Backend.Domain.Repositories;
 using CSharpFunctionalExtensions;
 using MediatR;
 
-namespace Backend.Application.UseCases.MyProfile;
+namespace Backend.Application.UseCases.Auth.MyProfile;
 
 public class MyProfileCommandHandler : IRequestHandler<MyProfileCommand, Result<MyProfileResult, ApiError>>
 {

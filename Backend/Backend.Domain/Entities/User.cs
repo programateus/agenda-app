@@ -2,12 +2,14 @@
 
 public class User
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public Guid Id { get; private set; }
+    public string Name { get; private set; }
+    public string Email { get; private set; }
+    public string Password { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public DateTime UpdatedAt { get; private set; }
+    
+    public ICollection<Entry> Entries { get; private set; } = [];
     
     private User() { }
 
@@ -17,7 +19,7 @@ public class User
         Name = name;
         Email = email;
         Password = password;
-        CreatedAt = DateTime.Now;
-        UpdatedAt = DateTime.Now;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
     }
 }

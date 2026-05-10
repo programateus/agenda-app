@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Backend.Application.UseCases.SignUp;
+namespace Backend.Application.UseCases.Auth.SignUp;
 
 public sealed class SignUpCommandValidator : AbstractValidator<SignUpCommand>
 {

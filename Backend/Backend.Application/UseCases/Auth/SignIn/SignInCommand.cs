@@ -2,6 +2,6 @@
 using CSharpFunctionalExtensions;
 using MediatR;
 
-namespace Backend.Application.UseCases.SignIn;
+namespace Backend.Application.UseCases.Auth.SignIn;
 
 public sealed record SignInCommand(string Email, string Password): IRequest<Result<SignInResult, ApiError>>;

@@ -2,7 +2,7 @@
 using CSharpFunctionalExtensions;
 using MediatR;
 
-namespace Backend.Application.UseCases.SignUp;
+namespace Backend.Application.UseCases.Auth.SignUp;
 
 public sealed record SignUpCommand(
     string Name,

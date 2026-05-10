@@ -17,5 +17,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Password).HasColumnName("password").HasMaxLength(255).IsRequired();
         builder.Property(user => user.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(user => user.UpdatedAt).HasColumnName("updated_at").IsRequired();
+        
+        builder.HasMany(user => user.Entries)
+            .WithOne(entry => entry.Owner)
+            .HasForeignKey(entry => entry.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

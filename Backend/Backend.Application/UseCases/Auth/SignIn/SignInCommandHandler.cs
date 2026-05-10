@@ -6,7 +6,7 @@ using Backend.Domain.Repositories;
 using CSharpFunctionalExtensions;
 using MediatR;
 
-namespace Backend.Application.UseCases.SignIn;
+namespace Backend.Application.UseCases.Auth.SignIn;
 
 public class SignInCommandHandler : IRequestHandler<SignInCommand, Result<SignInResult,ApiError>>
 {

@@ -6,6 +6,7 @@ namespace Backend.Infra.Database;
 public class AppDbContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Entry> Entries => Set<Entry>();
     
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {}

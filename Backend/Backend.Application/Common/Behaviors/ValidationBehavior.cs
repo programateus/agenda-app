@@ -1,9 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Backend.Application.Common.Errors;
+﻿using Backend.Application.Common.Errors;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using MediatR;
-using ValidationException = FluentValidation.ValidationException;
 
 namespace Backend.Application.Common.Behaviors;
 
