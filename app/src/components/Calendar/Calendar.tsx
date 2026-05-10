@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FullCalendar, {
   type DateClickInfo,
   type DateSelectInfo,
@@ -72,53 +72,45 @@ export const Calendar = ({
     [draftEntries, events],
   );
 
-  const closeEditor = () => {
+  const closeEditor = useCallback(() => {
     setEditorState(null);
-  };
+  }, []);
 
-  useEffect(() => {
-    if (!editorState) {
-      return;
-    }
-
-    const handleMouseDown = (event: MouseEvent) => {
-      const target = event.currentTarget as Node;
+  const handleMouseDown = useCallback(
+    (event: MouseEvent) => {
+      const target = event.target as Node;
 
       if (editorRef.current?.contains(target)) {
         return;
       }
 
       closeEditor();
-    };
+    },
+    [closeEditor],
+  );
 
-    const handleKeyDown = (event: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         closeEditor();
       }
-    };
+    },
+    [closeEditor],
+  );
 
-    const handleWindowBlur = () => {
-      closeEditor();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        closeEditor();
-      }
-    };
+  useEffect(() => {
+    if (!editorState) {
+      return;
+    }
 
     document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleWindowBlur);
 
     return () => {
       document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleWindowBlur);
     };
-  }, [editorState]);
+  }, [editorState, handleMouseDown, handleKeyDown]);
 
   const openEditor = (
     clientX: number,
