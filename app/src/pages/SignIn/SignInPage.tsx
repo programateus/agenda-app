@@ -14,7 +14,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { AxiosError } from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useSignInMutation } from "@/hooks/reactQuery/auth/useSignInMutation";
+import { useAuth } from "@/hooks/useAuth";
 
 const signInSchema = z.object({
   email: z.email("Invalid email"),
@@ -42,6 +44,8 @@ export const SignInPage = () => {
     mode: "onBlur",
   });
   const { mutateAsync: signIn, isPending } = useSignInMutation();
+  const { signIn: authenticate } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (data: SignInFormData) => {
     try {
@@ -49,13 +53,17 @@ export const SignInPage = () => {
       const {
         data: { accessToken },
       } = await signIn(data);
-      localStorage.setItem("accessToken", accessToken);
+      await authenticate(accessToken);
+      navigate("/");
     } catch (e) {
       if (e instanceof AxiosError) {
         if (e.response?.status === 401) {
           setServerError("Invalid credentials");
+          return;
         }
       }
+
+      setServerError("Could not sign in");
     }
   };
 
@@ -121,7 +129,7 @@ export const SignInPage = () => {
           />
 
           <Button fullWidth type="submit" isDisabled={isPending}>
-            {isPending ? "Creating account..." : "Sign Up"}
+            {isPending ? "Signing in..." : "Sign In"}
           </Button>
           <p className="text-center">
             New here? <Link href="/sign-up">Sign Up</Link>

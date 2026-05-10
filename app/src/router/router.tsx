@@ -2,6 +2,8 @@ import { type RouteObject } from "react-router";
 
 import { AuthLayout } from "@/components/AuthLayout";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { AuthGuard } from "@/guards/AuthGuard";
+import { GuestGuard } from "@/guards/GuestGuard";
 
 import { SignUpPage } from "@/pages/SignUp";
 import { Dashboard } from "@/pages/Dashboard";
@@ -9,19 +11,29 @@ import { SignInPage } from "@/pages/SignIn";
 
 export const router: RouteObject[] = [
   {
-    element: <AuthLayout />,
+    element: <GuestGuard />,
     children: [
-      { path: "/sign-up", element: <SignUpPage /> },
-      { path: "/sign-in", element: <SignInPage /> },
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: "/sign-up", element: <SignUpPage /> },
+          { path: "/sign-in", element: <SignInPage /> },
+        ],
+      },
     ],
   },
   {
-    path: "/",
-    element: <DashboardLayout />,
+    element: <AuthGuard />,
     children: [
       {
-        index: true,
-        element: <Dashboard />,
+        path: "/",
+        element: <DashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: <Dashboard />,
+          },
+        ],
       },
     ],
   },

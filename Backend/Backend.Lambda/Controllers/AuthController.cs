@@ -1,4 +1,6 @@
-﻿using Backend.Application.UseCases.SignIn;
+﻿using System.Security.Claims;
+using Backend.Application.UseCases.MyProfile;
+using Backend.Application.UseCases.SignIn;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Lambda.DTOs;
@@ -39,6 +41,19 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> SignIn(SignInDTO request, CancellationToken cancellationToken)
     {
         var command = new SignInCommand(request.Email, request.Password);
+        var result = await _sender.Send(command, cancellationToken);
+        return result.ToActionResult(this);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [Route("my-profile")]
+    [EndpointSummary("My Profile")]
+    [EndpointDescription("My Profile")]
+    public async Task<IActionResult> MyProfile(CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedAccessException();;
+        var command = new MyProfileCommand(userId);
         var result = await _sender.Send(command, cancellationToken);
         return result.ToActionResult(this);
     }

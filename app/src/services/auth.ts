@@ -26,3 +26,14 @@ export const signIn = async (payload: SignInRequest) => {
 
   return data;
 };
+
+export type MyProfileResponse = ApiResponse<{
+  name: string;
+  email: string;
+}>;
+
+export const myProfile = async () => {
+  const { data } = await api.post<MyProfileResponse>("/auth/my-profile");
+
+  return data;
+};
