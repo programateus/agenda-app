@@ -21,7 +21,7 @@ export interface CalendarProps {
   events?: EventInput[];
   initialView?: CalendarView;
   initialDate?: DateInput;
-  onEntryDraftSubmit?: (entry: CalendarEntryDraft) => void;
+  onEntryDraftSubmit?: (entry: CalendarEntryDraft) => Promise<void> | void;
 }
 
 export interface CalendarEditorState {

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace Backend.Lambda.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly ISender _sender;

@@ -5,6 +5,7 @@ import {
   Form,
   Input,
   Label,
+  Spinner,
   Surface,
   TextField,
 } from "@heroui/react";
@@ -25,7 +26,7 @@ const entryFormSchema = z
       .string()
       .trim()
       .min(1, "Title is required")
-      .max(255, "Title must have at most 255 characters"),
+      .max(100, "Title must have at most 100 characters"),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     frequency: z.enum(frequencyOptions),
@@ -44,18 +45,20 @@ interface CalendarEditorProps {
   editorState: CalendarEditorState | null;
   editorRef: React.RefObject<HTMLDivElement | null>;
   initialValues: EntryFormData;
+  isSaving: boolean;
   onClose: () => void;
-  onSubmit: (data: EntryFormData) => void;
+  onSubmit: (data: EntryFormData) => Promise<void> | void;
 }
 
 export const CalendarEditor = ({
   editorState,
   editorRef,
   initialValues,
+  isSaving,
   onClose,
   onSubmit,
 }: CalendarEditorProps) => {
-  const { control, handleSubmit, reset } = useForm<EntryFormData>({
+  const { control, handleSubmit, reset, formState } = useForm<EntryFormData>({
     resolver: zodResolver(entryFormSchema),
     defaultValues: initialValues,
     mode: "onBlur",
@@ -68,6 +71,8 @@ export const CalendarEditor = ({
   if (!editorState) {
     return null;
   }
+
+  const isDisabled = formState.isSubmitting || isSaving;
 
   return (
     <div
@@ -88,7 +93,12 @@ export const CalendarEditor = ({
               </h2>
             </div>
 
-            <Button type="button" variant="ghost" onClick={onClose}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onClose}
+              isDisabled={isDisabled}
+            >
               Close
             </Button>
           </div>
@@ -104,6 +114,7 @@ export const CalendarEditor = ({
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
+                isDisabled={isDisabled}
                 validationBehavior="aria"
               >
                 <Label className="font-semibold">Title</Label>
@@ -124,6 +135,7 @@ export const CalendarEditor = ({
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
+                isDisabled={isDisabled}
                 validationBehavior="aria"
               >
                 <Label className="font-semibold">Start</Label>
@@ -144,6 +156,7 @@ export const CalendarEditor = ({
                 onChange={field.onChange}
                 onBlur={field.onBlur}
                 isInvalid={fieldState.invalid}
+                isDisabled={isDisabled}
                 validationBehavior="aria"
               >
                 <Label className="font-semibold">End</Label>
@@ -166,6 +179,7 @@ export const CalendarEditor = ({
                     field.onChange(event.target.value as EntryFrequency)
                   }
                   onBlur={field.onBlur}
+                  disabled={isDisabled}
                 >
                   {frequencyOptions.map((frequency) => (
                     <option key={frequency} value={frequency}>
@@ -179,11 +193,29 @@ export const CalendarEditor = ({
           />
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              isDisabled={isDisabled}
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
-              {editorState.mode === "create" ? "Create event" : "Save changes"}
+            <Button
+              type="submit"
+              variant="primary"
+              isDisabled={isDisabled}
+            >
+              {isDisabled ? (
+                <span className="flex items-center gap-2">
+                  <Spinner size="sm" />
+                  Saving...
+                </span>
+              ) : editorState.mode === "create" ? (
+                "Create event"
+              ) : (
+                "Save changes"
+              )}
             </Button>
           </div>
         </Form>

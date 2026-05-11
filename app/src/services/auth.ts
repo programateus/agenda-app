@@ -9,7 +9,7 @@ export type SignUpRequest = {
 export type SignUpResponse = ApiResponse<Record<string, never>>;
 
 export const signUp = async (payload: SignUpRequest) => {
-  const { data } = await api.post<SignUpResponse>("/auth/sign-up", payload);
+  const { data } = await api.post<SignUpResponse>("/api/auth/sign-up", payload);
 
   return data;
 };
@@ -22,7 +22,7 @@ export type SignInRequest = {
 export type SignInResponse = ApiResponse<{ accessToken: string }>;
 
 export const signIn = async (payload: SignInRequest) => {
-  const { data } = await api.post<SignInResponse>("/auth/sign-in", payload);
+  const { data } = await api.post<SignInResponse>("/api/auth/sign-in", payload);
 
   return data;
 };

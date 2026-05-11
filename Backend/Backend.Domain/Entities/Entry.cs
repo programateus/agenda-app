@@ -21,6 +21,8 @@ public class Entry
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     
+    public ICollection<EntryOccurrence> EntryOccurrences { get; private set; } = [];
+    
     private Entry() {}
 
     public Entry(string title, DateTime startDate, DateTime endDate, Frequency frequency, Guid ownerId)

@@ -53,6 +53,7 @@ export const Calendar = ({
   const [editorState, setEditorState] = useState<CalendarEditorState | null>(
     null,
   );
+  const [isSavingEntry, setIsSavingEntry] = useState(false);
   const [editorValues, setEditorValues] = useState<EntryFormData>({
     title: "",
     startDate: "",
@@ -73,8 +74,12 @@ export const Calendar = ({
   );
 
   const closeEditor = useCallback(() => {
+    if (isSavingEntry) {
+      return;
+    }
+
     setEditorState(null);
-  }, []);
+  }, [isSavingEntry]);
 
   const handleMouseDown = useCallback(
     (event: MouseEvent) => {
@@ -183,7 +188,7 @@ export const Calendar = ({
     );
   };
 
-  const handleFormSubmit = (data: EntryFormData) => {
+  const handleFormSubmit = async (data: EntryFormData) => {
     if (!editorState) {
       return;
     }
@@ -196,18 +201,28 @@ export const Calendar = ({
       frequency: data.frequency,
     };
 
-    setDraftEntries((currentDrafts) => ({
-      ...currentDrafts,
-      [nextDraft.id]: nextDraft,
-    }));
+    try {
+      if (editorState.mode === "create") {
+        setIsSavingEntry(true);
+        await onEntryDraftSubmit?.(nextDraft);
+      }
 
-    onEntryDraftSubmit?.(nextDraft);
-    toast.success(
-      editorState.mode === "create"
-        ? "Event created locally"
-        : "Event updated locally",
-    );
-    closeEditor();
+      setDraftEntries((currentDrafts) => ({
+        ...currentDrafts,
+        [nextDraft.id]: nextDraft,
+      }));
+
+      toast.success(
+        editorState.mode === "create"
+          ? "Event created successfully"
+          : "Event updated locally",
+      );
+      setEditorState(null);
+    } catch {
+      toast.danger("Unable to save event. Please try again.");
+    } finally {
+      setIsSavingEntry(false);
+    }
   };
 
   return (
@@ -244,6 +259,7 @@ export const Calendar = ({
         editorRef={editorRef}
         editorState={editorState}
         initialValues={editorValues}
+        isSaving={isSavingEntry}
         onClose={closeEditor}
         onSubmit={handleFormSubmit}
       />
