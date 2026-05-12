@@ -8,5 +8,5 @@ public interface IEntryRepository
     public Task CreateAsync(Entry entry, CancellationToken cancellationToken = default); 
     public Task UpdateAsync(Entry entry, CancellationToken cancellationToken = default);
     public Task DeleteAsync(Entry entry, CancellationToken cancellationToken = default);
-    public Task<List<Entry>> GetAllInIntervalAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+    public Task<List<Entry>> GetAllInIntervalAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
 }

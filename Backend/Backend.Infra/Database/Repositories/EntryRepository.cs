@@ -33,7 +33,7 @@ public sealed class EntryRepository : IEntryRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<Entry>> GetAllInIntervalAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public Task<List<Entry>> GetAllInIntervalAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

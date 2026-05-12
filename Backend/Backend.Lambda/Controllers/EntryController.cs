@@ -20,6 +20,8 @@ public class EntryController : ControllerBase
     
     [Authorize]
     [HttpPost]
+    [EndpointSummary("Create Entry")]
+    [EndpointDescription("Create Entry")]
     public async Task<IActionResult> Create(CreateEntryDTO request)
     {
         var userId = User.GetUserId() ?? throw new UnauthorizedAccessException();
