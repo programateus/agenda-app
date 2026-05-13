@@ -13,6 +13,21 @@ public class EntryOccurrenceGenerator : IEntryOccurrenceGenerator
         var frequency = MapEntryFrequencyToRRuleFrequency(entry.Frequency);
         if (frequency is null)
         {
+            var alreadyExists = entry.EntryOccurrences.Any(entryOccurrence =>
+                entryOccurrence.OriginalStartDate == entry.StartDate);
+
+            if (!alreadyExists)
+            {
+                entry.EntryOccurrences.Add(new EntryOccurrence(
+                    entry.Title,
+                    entry.StartDate,
+                    entry.StartDate,
+                    entry.EndDate,
+                    false,
+                    entry.Id
+                ));
+            }
+            
             return entry;
         }
         
@@ -63,8 +78,8 @@ public class EntryOccurrenceGenerator : IEntryOccurrenceGenerator
 
     private EntryOccurrence? GenerateVirtualEntryOccurrence(Entry entry, Occurrence occurrence)
     {
-        var startDate = occurrence.Period.StartTime.AsUtc;
-        var endDate = occurrence.Period.EffectiveEndTime?.AsUtc ?? startDate;
+        var startDate = occurrence.Period.StartTime.Value;
+        var endDate = occurrence.Period.EffectiveEndTime?.Value ?? startDate;
         var existingEntryOccurrence =
             entry.EntryOccurrences.FirstOrDefault(entryOccurrence => entryOccurrence.OriginalStartDate == startDate);
         if (existingEntryOccurrence is not null)

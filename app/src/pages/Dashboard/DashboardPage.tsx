@@ -5,6 +5,7 @@ import { Calendar } from "@/components/Calendar/Calendar";
 import type { CalendarEntryDraft } from "@/components/Calendar/calendarTypes";
 import { useCreateEntryMutation } from "@/hooks/reactQuery/entries/useCreateEntryMutation";
 import { useListEntriesQuery } from "@/hooks/reactQuery/entries/useListEntriesQuery";
+import { parse } from "date-fns";
 
 const createInitialDateRange = () => {
   const now = new Date();
@@ -25,12 +26,20 @@ export const DashboardPage = () => {
         entry.entryOccurrences.map((occurrence) => ({
           id: occurrence.id,
           title: occurrence.title,
-          start: occurrence.startDate,
-          end: occurrence.endDate,
+          start: parse(
+            occurrence.startDate,
+            "yyyy-MM-dd'T'HH:mm:ss",
+            new Date(),
+          ),
+          end: parse(occurrence.endDate, "yyyy-MM-dd'T'HH:mm:ss", new Date()),
           extendedProps: {
             entryId: entry.id,
             frequency: entry.frequency,
-            originalStartDate: occurrence.originalStartDate,
+            originalStartDate: parse(
+              occurrence.originalStartDate,
+              "yyyy-MM-dd'T'HH:mm:ss",
+              new Date(),
+            ),
             isCanceled: occurrence.isCanceled,
           },
         })),

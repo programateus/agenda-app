@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import FullCalendar, {
   type DateClickInfo,
   type DateSelectInfo,
@@ -25,12 +25,10 @@ import type {
 } from "./calendarTypes";
 import {
   calculateEditorPosition,
-  createDraftFromEventInput,
   createEntryId,
-  createEventInputFromDraft,
   createFormValuesFromDateClick,
+  createFormValuesFromEvent,
   createFormValuesFromSelection,
-  mergeDraftEntries,
 } from "./calendarUtils";
 
 const isCalendarView = (value: string): value is CalendarView =>
@@ -48,9 +46,6 @@ export const Calendar = ({
   const controller = useCalendarController();
   const calendarRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<HTMLDivElement>(null);
-  const [draftEntries, setDraftEntries] = useState<
-    Record<string, CalendarEntryDraft>
-  >({});
   const [editorState, setEditorState] = useState<CalendarEditorState | null>(
     null,
   );
@@ -66,13 +61,6 @@ export const Calendar = ({
     currentViewType && isCalendarView(currentViewType)
       ? currentViewType
       : initialView;
-  const displayEvents = useMemo(
-    () =>
-      mergeDraftEntries(events ?? [], draftEntries).map(
-        createEventInputFromDraft,
-      ),
-    [draftEntries, events],
-  );
 
   const closeEditor = useCallback(() => {
     if (isSavingEntry) {
@@ -175,30 +163,14 @@ export const Calendar = ({
     }
 
     const fallbackId = createEntryId();
-    const eventDraft = draftEntries[info.event.id]
-      ? draftEntries[info.event.id]
-      : createDraftFromEventInput(
-          {
-            id: info.event.id || fallbackId,
-            title: info.event.title,
-            start: info.event.start ?? undefined,
-            end: info.event.end ?? undefined,
-            extendedProps: info.event.extendedProps,
-          },
-          fallbackId,
-        );
+    const calendarEvent = events?.find((event) => event.id === info.event.id);
 
     openEditor(
       info.jsEvent.clientX,
       info.jsEvent.clientY,
       "edit",
-      eventDraft.id,
-      {
-        title: eventDraft.title,
-        startDate: eventDraft.startDate,
-        endDate: eventDraft.endDate,
-        frequency: eventDraft.frequency,
-      },
+      calendarEvent?.id || fallbackId,
+      createFormValuesFromEvent(calendarEvent!, fallbackId),
     );
   };
 
@@ -220,11 +192,6 @@ export const Calendar = ({
         setIsSavingEntry(true);
         await onEntryDraftSubmit?.(nextDraft);
       }
-
-      setDraftEntries((currentDrafts) => ({
-        ...currentDrafts,
-        [nextDraft.id]: nextDraft,
-      }));
 
       toast.success(
         editorState.mode === "create"
@@ -260,7 +227,7 @@ export const Calendar = ({
             });
           }}
           eventClick={handleEventClick}
-          events={displayEvents}
+          events={events}
           headerToolbar={false}
           height="100%"
           initialDate={initialDate}
