@@ -43,6 +43,7 @@ export const Calendar = ({
   initialView = "dayGridMonth",
   initialDate,
   onEntryDraftSubmit,
+  onVisibleRangeChange,
 }: CalendarProps) => {
   const controller = useCalendarController();
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -136,6 +137,15 @@ export const Calendar = ({
     });
   };
 
+  const closeEditorOnInteraction = () => {
+    if (!editorState) {
+      return false;
+    }
+
+    closeEditor();
+    return true;
+  };
+
   const handleDateClick = (info: DateClickInfo) => {
     openEditor(
       info.jsEvent.clientX,
@@ -160,6 +170,10 @@ export const Calendar = ({
   };
 
   const handleEventClick = (info: EventClickInfo) => {
+    if (closeEditorOnInteraction()) {
+      return;
+    }
+
     const fallbackId = createEntryId();
     const eventDraft = draftEntries[info.event.id]
       ? draftEntries[info.event.id]
@@ -238,6 +252,13 @@ export const Calendar = ({
         <FullCalendar
           controller={controller}
           dateClick={handleDateClick}
+          datesSet={(info) => {
+            onVisibleRangeChange?.({
+              startDate: info.start,
+              endDate: info.end,
+              view: info.view.type,
+            });
+          }}
           eventClick={handleEventClick}
           events={displayEvents}
           headerToolbar={false}
@@ -252,6 +273,7 @@ export const Calendar = ({
           ]}
           select={handleSelect}
           selectable
+          eventClass="cursor-pointer"
         />
       </div>
 

@@ -33,7 +33,7 @@ export type MyProfileResponse = ApiResponse<{
 }>;
 
 export const myProfile = async () => {
-  const { data } = await api.post<MyProfileResponse>("/auth/my-profile");
+  const { data } = await api.post<MyProfileResponse>("/api/auth/my-profile");
 
   return data;
 };

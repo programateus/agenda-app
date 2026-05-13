@@ -1,4 +1,4 @@
-import type { DateInput, EventInput } from "@fullcalendar/react";
+import type { DateInput, DatesSetInfo, EventInput } from "@fullcalendar/react";
 
 export type CalendarView = "dayGridMonth" | "timeGridWeek" | "timeGridDay";
 export type EntryFrequency =
@@ -22,6 +22,11 @@ export interface CalendarProps {
   initialView?: CalendarView;
   initialDate?: DateInput;
   onEntryDraftSubmit?: (entry: CalendarEntryDraft) => Promise<void> | void;
+  onVisibleRangeChange?: (range: {
+    startDate: Date;
+    endDate: Date;
+    view: DatesSetInfo["view"]["type"];
+  }) => void;
 }
 
 export interface CalendarEditorState {

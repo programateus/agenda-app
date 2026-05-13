@@ -23,8 +23,7 @@ public class ListEntriesCommandHandler : IRequestHandler<ListEntriesCommand, Res
     {
         var entries = await _entryRepository.GetAllInIntervalAsync(request.UserId, request.StartDate, request.EndDate,
             cancellationToken);
-        List<Entry> filledEntries = [];
-        filledEntries.AddRange(entries.Select(entry => _entryOccurrenceGenerator.Generate(entry, request.StartDate, request.EndDate)));
-        return Result.Success<ListEntriesResult, ApiError>(new ListEntriesResult(filledEntries));
+        entries.ForEach(entry => _entryOccurrenceGenerator.Generate(entry, request.StartDate, request.EndDate));
+        return Result.Success<ListEntriesResult, ApiError>(new ListEntriesResult(entries));
     }
 }

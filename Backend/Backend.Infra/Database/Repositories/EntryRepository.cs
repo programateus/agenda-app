@@ -1,5 +1,6 @@
 ﻿using Backend.Domain.Entities;
 using Backend.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infra.Database.Repositories;
 
@@ -33,8 +34,14 @@ public sealed class EntryRepository : IEntryRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<Entry>> GetAllInIntervalAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
+    public async Task<List<Entry>> GetAllInIntervalAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var entries = await _dbContext.Entries
+            .Include(entry => entry.EntryOccurrences)
+            .Where(entry => entry.OwnerId == userId && 
+                (entry.Frequency == Frequency.None && entry.StartDate >= startDate && entry.EndDate <= endDate ||
+                entry.Frequency != Frequency.None))
+            .ToListAsync(cancellationToken);
+        return entries;
     }
 }

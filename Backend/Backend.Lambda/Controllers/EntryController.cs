@@ -1,4 +1,5 @@
 ﻿using Backend.Application.UseCases.Entries.CreateEntry;
+using Backend.Application.UseCases.Entries.ListEntries;
 using Backend.Lambda.DTOs;
 using Backend.Lambda.Extensions;
 using MediatR;
@@ -31,6 +32,22 @@ public class EntryController : ControllerBase
             request.EndDate,
             request.Frequency,
             userId
+        );
+        var result = await _sender.Send(command);
+        return result.ToActionResult(this);
+    }
+    
+    [Authorize]
+    [HttpGet]
+    [EndpointSummary("List Entries")]
+    [EndpointDescription("List Entries")]
+    public async Task<IActionResult> List([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedAccessException();
+        var command = new ListEntriesCommand(
+            userId,
+            startDate,
+            endDate
         );
         var result = await _sender.Send(command);
         return result.ToActionResult(this);
