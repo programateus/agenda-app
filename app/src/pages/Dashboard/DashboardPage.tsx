@@ -3,10 +3,12 @@ import type { EventInput } from "@fullcalendar/react";
 
 import { Calendar } from "@/components/Calendar/Calendar";
 import type {
+  CalendarEntryDeleteDraft,
   CalendarEntryDraft,
   CalendarEntryUpdateDraft,
 } from "@/components/Calendar/calendarTypes";
 import { useCreateEntryMutation } from "@/hooks/reactQuery/entries/useCreateEntryMutation";
+import { useDeleteEntryMutation } from "@/hooks/reactQuery/entries/useDeleteEntryMutation";
 import { useListEntriesQuery } from "@/hooks/reactQuery/entries/useListEntriesQuery";
 import { useUpdateEntryMutation } from "@/hooks/reactQuery/entries/useUpdateEntryMutation";
 import { parse } from "date-fns";
@@ -23,6 +25,7 @@ export const DashboardPage = () => {
   const [visibleRange, setVisibleRange] = useState(createInitialDateRange);
   const { mutateAsync: createEntry } = useCreateEntryMutation();
   const { mutateAsync: updateEntry } = useUpdateEntryMutation();
+  const { mutateAsync: deleteEntry } = useDeleteEntryMutation();
   const { data } = useListEntriesQuery(visibleRange);
 
   const events = useMemo<EventInput[]>(
@@ -74,12 +77,21 @@ export const DashboardPage = () => {
     });
   };
 
+  const handleDelete = async (entry: CalendarEntryDeleteDraft) => {
+    await deleteEntry({
+      id: entry.id,
+      originalStartDate: entry.originalStartDate,
+      scope: entry.scope,
+    });
+  };
+
   return (
     <div className="h-full">
       <Calendar
         events={events}
         onEntryDraftCreate={handleCreate}
         onEntryDraftUpdate={handleUpdate}
+        onEntryDraftDelete={handleDelete}
         onVisibleRangeChange={({ startDate, endDate }) => {
           setVisibleRange((currentRange) => {
             if (

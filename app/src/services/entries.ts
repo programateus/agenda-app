@@ -18,6 +18,7 @@ export const createEntry = async (payload: CreateEntryRequest) => {
 };
 
 export type UpdateEntryScope = "Single" | "Forward" | "All";
+export type DeleteEntryScope = "Single" | "All";
 
 export type UpdateEntryRequest = CreateEntryRequest & {
   id: string;
@@ -34,6 +35,32 @@ export const updateEntry = async ({
   const { data } = await api.put<UpdateEntryResponse>(
     `/api/entries/${id}`,
     payload,
+  );
+
+  return data;
+};
+
+export type DeleteEntryRequest = {
+  id: string;
+  originalStartDate: string;
+  scope: DeleteEntryScope;
+};
+
+export type DeleteEntryResponse = ApiResponse<Record<string, never>>;
+
+export const deleteEntry = async ({
+  id,
+  originalStartDate,
+  scope,
+}: DeleteEntryRequest) => {
+  const { data } = await api.delete<DeleteEntryResponse>(
+    `/api/entries/${id}`,
+    {
+      params: {
+        originalStartDate,
+        scope,
+      },
+    },
   );
 
   return data;

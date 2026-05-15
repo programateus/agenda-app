@@ -18,6 +18,7 @@ import { CalendarEditor } from "./CalendarEditor";
 import { CalendarToolbar } from "./CalendarToolbar";
 import type {
   CalendarEditorState,
+  EntryDeleteScope,
   CalendarEntryDraft,
   CalendarEntryUpdateDraft,
   CalendarView,
@@ -44,6 +45,7 @@ export const Calendar = ({
   initialDate,
   onEntryDraftCreate,
   onEntryDraftUpdate,
+  onEntryDraftDelete,
   onVisibleRangeChange,
 }: CalendarProps) => {
   const controller = useCalendarController();
@@ -272,6 +274,28 @@ export const Calendar = ({
     }
   };
 
+  const handleDelete = async (scope: EntryDeleteScope) => {
+    if (!editorState?.originalStartDate) {
+      return;
+    }
+
+    try {
+      setIsSavingEntry(true);
+      await onEntryDraftDelete?.({
+        id: editorState.entryId,
+        originalStartDate: editorState.originalStartDate,
+        scope: editorState.isRecurring ? scope : "All",
+      });
+
+      toast.success("Event canceled successfully");
+      setEditorState(null);
+    } catch {
+      toast.danger("Unable to cancel event. Please try again.");
+    } finally {
+      setIsSavingEntry(false);
+    }
+  };
+
   return (
     <div ref={calendarRef} className="relative flex h-full flex-col bg-white">
       <CalendarToolbar
@@ -316,6 +340,7 @@ export const Calendar = ({
         initialValues={editorValues}
         isSaving={isSavingEntry}
         onClose={closeEditor}
+        onDelete={handleDelete}
         onSubmit={handleFormSubmit}
       />
     </div>

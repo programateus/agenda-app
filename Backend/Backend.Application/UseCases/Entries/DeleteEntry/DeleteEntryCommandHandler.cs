@@ -40,14 +40,22 @@ public class DeleteEntryCommandHandler : IRequestHandler<DeleteEntryCommand, Res
     {
         var occurrence = await _entryOccurrenceRepository.FindAsync(request.EntryId, request.OriginalStartDate, cancellationToken);
         var difference = entry.EndDate - entry.StartDate;
-        occurrence ??= new EntryOccurrence(
-            entry.Title,
-            request.OriginalStartDate,
-            request.OriginalStartDate,
-            request.OriginalStartDate.Add(difference),
-            true,
-            entry.Id
-        );
+
+        if (occurrence is null)
+        {
+            occurrence = new EntryOccurrence(
+                entry.Title,
+                request.OriginalStartDate,
+                request.OriginalStartDate,
+                request.OriginalStartDate.Add(difference),
+                true,
+                entry.Id
+            );
+
+            await _entryOccurrenceRepository.CreateAsync(occurrence, cancellationToken);
+            return;
+        }
+
         occurrence.Cancel();
         await _entryOccurrenceRepository.UpdateAsync(occurrence, cancellationToken);
     }

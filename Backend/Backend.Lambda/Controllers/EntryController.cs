@@ -84,7 +84,10 @@ public class EntryController : ControllerBase
     [Route("{entryId:guid}")]
     [EndpointSummary("Update Entry")]
     [EndpointDescription("Update Entry")]
-    public async Task<IActionResult> Delete(Guid entryId, DateTime originalStartDate, DeleteScope scope)
+    public async Task<IActionResult> Delete(
+        Guid entryId,
+        [FromQuery] DateTime originalStartDate,
+        [FromQuery] DeleteScope scope)
     {
         var userId = User.GetUserId() ?? throw new UnauthorizedAccessException();
         var command = new DeleteEntryCommand(

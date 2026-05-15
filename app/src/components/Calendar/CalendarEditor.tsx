@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 
 import type {
   CalendarEditorState,
+  EntryDeleteScope,
   EntryFormData,
   EntryFrequency,
   EntryUpdateScope,
@@ -28,6 +29,7 @@ interface CalendarEditorProps {
   initialValues: EntryFormData;
   isSaving: boolean;
   onClose: () => void;
+  onDelete: (scope: EntryDeleteScope) => Promise<void> | void;
   onSubmit: (
     data: EntryFormData,
     scope: EntryUpdateScope,
@@ -40,9 +42,11 @@ export const CalendarEditor = ({
   initialValues,
   isSaving,
   onClose,
+  onDelete,
   onSubmit,
 }: CalendarEditorProps) => {
   const [updateScope, setUpdateScope] = useState<EntryUpdateScope>("All");
+  const [deleteScope, setDeleteScope] = useState<EntryDeleteScope>("Single");
   const {
     clearErrors,
     control,
@@ -68,6 +72,7 @@ export const CalendarEditor = ({
       initialValues.frequency !== "None" && Boolean(initialValues.until),
     );
     setUpdateScope("All");
+    setDeleteScope("Single");
   }, [initialValues, reset]);
 
   useEffect(() => {
@@ -115,6 +120,11 @@ export const CalendarEditor = ({
 
   const isDisabled = formState.isSubmitting || isSaving;
   const showUntilControls = frequency !== "None";
+  const isEditing = editorState.mode === "edit";
+
+  const handleDelete = async () => {
+    await onDelete(editorState.isRecurring ? deleteScope : "All");
+  };
 
   return (
     <div
@@ -290,6 +300,44 @@ export const CalendarEditor = ({
             </div>
           ) : null}
 
+          {isEditing ? (
+            <div className="space-y-3 rounded-2xl border border-red-200 bg-red-50 p-3">
+              {editorState.isRecurring ? (
+                <div className="space-y-2">
+                  <Label className="font-semibold">Cancel</Label>
+                  <select
+                    className="w-full rounded-2xl border border-red-200 bg-white px-3 py-2 text-sm outline-none ring-0"
+                    value={deleteScope}
+                    onChange={(event) =>
+                      setDeleteScope(event.target.value as EntryDeleteScope)
+                    }
+                    disabled={isDisabled}
+                  >
+                    <option value="Single">Only this event</option>
+                    <option value="All">All events</option>
+                  </select>
+                </div>
+              ) : null}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleDelete}
+                isDisabled={isDisabled}
+                className="border-red-300 text-red-700"
+              >
+                {isSaving ? (
+                  <span className="flex items-center gap-2">
+                    <Spinner size="sm" />
+                    Canceling...
+                  </span>
+                ) : (
+                  "Cancel event"
+                )}
+              </Button>
+            </div>
+          ) : null}
+
           <div className="flex flex-wrap justify-end gap-2">
             <Button
               type="button"
@@ -297,7 +345,7 @@ export const CalendarEditor = ({
               onClick={onClose}
               isDisabled={isDisabled}
             >
-              Cancel
+              Close
             </Button>
             <Button type="submit" variant="primary" isDisabled={isDisabled}>
               {isDisabled ? (

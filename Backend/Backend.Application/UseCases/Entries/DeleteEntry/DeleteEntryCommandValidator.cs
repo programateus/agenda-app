@@ -13,6 +13,6 @@ public class DeleteEntryCommandValidator: AbstractValidator<DeleteEntryCommand>
         RuleFor(x => x.OriginalStartDate)
             .NotEmpty();
         RuleFor(x => x.Scope)
-            .NotEmpty();
+            .IsInEnum();
     }
 }

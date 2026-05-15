@@ -30,9 +30,10 @@ public sealed class EntryRepository : IEntryRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task DeleteAsync(Entry entry, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Entry entry, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _dbContext.Entries.Remove(entry);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<List<Entry>> GetAllInIntervalAsync(Guid userId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)

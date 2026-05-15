@@ -19,10 +19,17 @@ export interface CalendarEntryDraft {
 }
 
 export type EntryUpdateScope = "Single" | "Forward" | "All";
+export type EntryDeleteScope = "Single" | "All";
 
 export interface CalendarEntryUpdateDraft extends CalendarEntryDraft {
   originalStartDate: string;
   scope: EntryUpdateScope;
+}
+
+export interface CalendarEntryDeleteDraft {
+  id: string;
+  originalStartDate: string;
+  scope: EntryDeleteScope;
 }
 
 export interface CalendarProps {
@@ -32,6 +39,9 @@ export interface CalendarProps {
   onEntryDraftCreate?: (entry: CalendarEntryDraft) => Promise<void> | void;
   onEntryDraftUpdate?: (
     entry: CalendarEntryUpdateDraft,
+  ) => Promise<void> | void;
+  onEntryDraftDelete?: (
+    entry: CalendarEntryDeleteDraft,
   ) => Promise<void> | void;
   onVisibleRangeChange?: (range: {
     startDate: Date;
