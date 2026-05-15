@@ -40,7 +40,7 @@ public sealed class EntryRepository : IEntryRepository
         var entries = await _dbContext.Entries
             .Include(entry => entry.EntryOccurrences)
             .Where(entry => entry.OwnerId == userId && 
-                (entry.Frequency == Frequency.None && entry.StartDate >= startDate && entry.EndDate <= endDate ||
+                (entry.Frequency == Frequency.None && entry.StartDate < endDate && entry.EndDate > startDate ||
                 entry.Frequency != Frequency.None))
             .ToListAsync(cancellationToken);
         return entries;

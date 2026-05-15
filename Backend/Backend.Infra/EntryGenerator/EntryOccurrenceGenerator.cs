@@ -133,8 +133,8 @@ public class EntryOccurrenceGenerator : IEntryOccurrenceGenerator
     {
         return new EntryOccurrence(
             entry.Title,
-            originalStartDate,
             startDate,
+            originalStartDate,
             endDate,
             false,
             entry.Id

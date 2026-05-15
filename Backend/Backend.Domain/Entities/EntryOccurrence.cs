@@ -40,4 +40,9 @@ public class EntryOccurrence
         // TODO: fix UpdatedAt to update automatically
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void Cancel()
+    {
+        IsCanceled = true;
+    }
 }

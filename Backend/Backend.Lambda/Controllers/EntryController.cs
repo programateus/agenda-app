@@ -1,4 +1,5 @@
 ﻿using Backend.Application.UseCases.Entries.CreateEntry;
+using Backend.Application.UseCases.Entries.DeleteEntry;
 using Backend.Application.UseCases.Entries.ListEntries;
 using Backend.Application.UseCases.Entries.UpdateEntry;
 using Backend.Lambda.DTOs;
@@ -57,14 +58,14 @@ public class EntryController : ControllerBase
 
     [Authorize]
     [HttpPut]
-    [Route("{entryId}")]
+    [Route("{entryId:guid}")]
     [EndpointSummary("Update Entry")]
     [EndpointDescription("Update Entry")]
-    public async Task<IActionResult> Update(UpdateEntryDTO request, string entryId)
+    public async Task<IActionResult> Update(UpdateEntryDTO request, Guid entryId)
     {
         var userId = User.GetUserId() ?? throw new UnauthorizedAccessException();
         var command = new UpdateEntryCommand(
-            Guid.Parse(entryId),
+            entryId,
             request.Title,
             request.StartDate,
             request.EndDate,
@@ -73,6 +74,24 @@ public class EntryController : ControllerBase
             userId,
             request.Scope,
             request.OriginalStartDate
+        );
+        var result = await _sender.Send(command);
+        return result.ToActionResult(this);
+    }
+    
+    [Authorize]
+    [HttpDelete]
+    [Route("{entryId:guid}")]
+    [EndpointSummary("Update Entry")]
+    [EndpointDescription("Update Entry")]
+    public async Task<IActionResult> Delete(Guid entryId, DateTime originalStartDate, DeleteScope scope)
+    {
+        var userId = User.GetUserId() ?? throw new UnauthorizedAccessException();
+        var command = new DeleteEntryCommand(
+            entryId,
+            userId,
+            originalStartDate,
+            scope
         );
         var result = await _sender.Send(command);
         return result.ToActionResult(this);
