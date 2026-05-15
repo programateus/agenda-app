@@ -1,4 +1,6 @@
-﻿namespace Backend.Domain.Entities;
+﻿using System.Text.Json.Serialization;
+
+namespace Backend.Domain.Entities;
 
 public class EntryOccurrence
 {
@@ -8,6 +10,8 @@ public class EntryOccurrence
     public DateTime OriginalStartDate { get; set; }
     public DateTime EndDate { get; private set; }
     public bool IsCanceled { get; set; }
+
+    [JsonIgnore]
     public Entry Entry { get; private set; }
     public Guid EntryId { get; private set; }
     public DateTime CreatedAt { get; private set; }
@@ -26,5 +30,14 @@ public class EntryOccurrence
         EntryId = entryId;
         CreatedAt = DateTime.Now;
         UpdatedAt = DateTime.Now;
+    }
+    
+    public void Update(string title, DateTime startDate, DateTime endDate)
+    {
+        Title = title;
+        StartDate = startDate;
+        EndDate = endDate;
+        // TODO: fix UpdatedAt to update automatically
+        UpdatedAt = DateTime.UtcNow;
     }
 }

@@ -2,9 +2,13 @@ import { useMemo, useState } from "react";
 import type { EventInput } from "@fullcalendar/react";
 
 import { Calendar } from "@/components/Calendar/Calendar";
-import type { CalendarEntryDraft } from "@/components/Calendar/calendarTypes";
+import type {
+  CalendarEntryDraft,
+  CalendarEntryUpdateDraft,
+} from "@/components/Calendar/calendarTypes";
 import { useCreateEntryMutation } from "@/hooks/reactQuery/entries/useCreateEntryMutation";
 import { useListEntriesQuery } from "@/hooks/reactQuery/entries/useListEntriesQuery";
+import { useUpdateEntryMutation } from "@/hooks/reactQuery/entries/useUpdateEntryMutation";
 import { parse } from "date-fns";
 
 const createInitialDateRange = () => {
@@ -18,6 +22,7 @@ const createInitialDateRange = () => {
 export const DashboardPage = () => {
   const [visibleRange, setVisibleRange] = useState(createInitialDateRange);
   const { mutateAsync: createEntry } = useCreateEntryMutation();
+  const { mutateAsync: updateEntry } = useUpdateEntryMutation();
   const { data } = useListEntriesQuery(visibleRange);
 
   const events = useMemo<EventInput[]>(
@@ -38,11 +43,7 @@ export const DashboardPage = () => {
             until: entry.until
               ? parse(entry.until, "yyyy-MM-dd'T'HH:mm:ss", new Date())
               : null,
-            originalStartDate: parse(
-              occurrence.originalStartDate,
-              "yyyy-MM-dd'T'HH:mm:ss",
-              new Date(),
-            ),
+            originalStartDate: occurrence.originalStartDate,
             isCanceled: occurrence.isCanceled,
           },
         })),
@@ -50,7 +51,7 @@ export const DashboardPage = () => {
     [data],
   );
 
-  const handleSubmit = async (entry: CalendarEntryDraft) => {
+  const handleCreate = async (entry: CalendarEntryDraft) => {
     await createEntry({
       title: entry.title,
       startDate: entry.startDate,
@@ -60,11 +61,25 @@ export const DashboardPage = () => {
     });
   };
 
+  const handleUpdate = async (entry: CalendarEntryUpdateDraft) => {
+    await updateEntry({
+      id: entry.id,
+      title: entry.title,
+      startDate: entry.startDate,
+      endDate: entry.endDate,
+      until: entry.until,
+      frequency: entry.frequency,
+      scope: entry.scope,
+      originalStartDate: entry.originalStartDate,
+    });
+  };
+
   return (
     <div className="h-full">
       <Calendar
         events={events}
-        onEntryDraftSubmit={handleSubmit}
+        onEntryDraftCreate={handleCreate}
+        onEntryDraftUpdate={handleUpdate}
         onVisibleRangeChange={({ startDate, endDate }) => {
           setVisibleRange((currentRange) => {
             if (

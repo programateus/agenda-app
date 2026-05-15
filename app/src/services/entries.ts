@@ -17,6 +17,28 @@ export const createEntry = async (payload: CreateEntryRequest) => {
   return data;
 };
 
+export type UpdateEntryScope = "Single" | "Forward" | "All";
+
+export type UpdateEntryRequest = CreateEntryRequest & {
+  id: string;
+  scope: UpdateEntryScope;
+  originalStartDate: string;
+};
+
+export type UpdateEntryResponse = ApiResponse<Record<string, never>>;
+
+export const updateEntry = async ({
+  id,
+  ...payload
+}: UpdateEntryRequest) => {
+  const { data } = await api.put<UpdateEntryResponse>(
+    `/api/entries/${id}`,
+    payload,
+  );
+
+  return data;
+};
+
 export type ListEntriesRequest = {
   startDate: Date;
   endDate: Date;

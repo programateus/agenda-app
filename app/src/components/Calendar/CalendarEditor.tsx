@@ -17,8 +17,9 @@ import type {
   CalendarEditorState,
   EntryFormData,
   EntryFrequency,
+  EntryUpdateScope,
 } from "./calendarTypes";
-import { frequencyOptions, tooltipWidth } from "./calendarUtils";
+import { frequencyOptions } from "./calendarUtils";
 import { entryFormSchema } from "./schema";
 
 interface CalendarEditorProps {
@@ -27,7 +28,10 @@ interface CalendarEditorProps {
   initialValues: EntryFormData;
   isSaving: boolean;
   onClose: () => void;
-  onSubmit: (data: EntryFormData) => Promise<void> | void;
+  onSubmit: (
+    data: EntryFormData,
+    scope: EntryUpdateScope,
+  ) => Promise<void> | void;
 }
 
 export const CalendarEditor = ({
@@ -38,6 +42,7 @@ export const CalendarEditor = ({
   onClose,
   onSubmit,
 }: CalendarEditorProps) => {
+  const [updateScope, setUpdateScope] = useState<EntryUpdateScope>("All");
   const {
     clearErrors,
     control,
@@ -62,6 +67,7 @@ export const CalendarEditor = ({
     setHasUntil(
       initialValues.frequency !== "None" && Boolean(initialValues.until),
     );
+    setUpdateScope("All");
   }, [initialValues, reset]);
 
   useEffect(() => {
@@ -104,7 +110,7 @@ export const CalendarEditor = ({
       return;
     }
 
-    await onSubmit(data);
+    await onSubmit(data, updateScope);
   });
 
   const isDisabled = formState.isSubmitting || isSaving;
@@ -117,10 +123,13 @@ export const CalendarEditor = ({
       style={{
         left: editorState.left,
         top: editorState.top,
-        width: tooltipWidth,
+        width: editorState.width,
       }}
     >
-      <Surface className="rounded-3xl border border-zinc-200 p-4 shadow-2xl">
+      <Surface
+        className="overflow-y-auto rounded-3xl border border-zinc-200 p-4 shadow-2xl"
+        style={{ maxHeight: editorState.maxHeight }}
+      >
         <Form onSubmit={handleFormSubmit} className="space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -263,7 +272,25 @@ export const CalendarEditor = ({
             </div>
           ) : null}
 
-          <div className="flex justify-end gap-2">
+          {editorState.mode === "edit" && editorState.isRecurring ? (
+            <div className="space-y-2 rounded-2xl border border-zinc-200 p-3">
+              <Label className="font-semibold">Apply changes to</Label>
+              <select
+                className="w-full rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm outline-none ring-0"
+                value={updateScope}
+                onChange={(event) =>
+                  setUpdateScope(event.target.value as EntryUpdateScope)
+                }
+                disabled={isDisabled}
+              >
+                <option value="Single">Only this event</option>
+                <option value="Forward">This and following events</option>
+                <option value="All">All events</option>
+              </select>
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap justify-end gap-2">
             <Button
               type="button"
               variant="outline"

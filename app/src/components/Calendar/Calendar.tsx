@@ -19,9 +19,11 @@ import { CalendarToolbar } from "./CalendarToolbar";
 import type {
   CalendarEditorState,
   CalendarEntryDraft,
+  CalendarEntryUpdateDraft,
   CalendarView,
   CalendarProps,
   EntryFormData,
+  EntryUpdateScope,
 } from "./calendarTypes";
 import {
   calculateEditorPosition,
@@ -40,7 +42,8 @@ export const Calendar = ({
   events,
   initialView = "dayGridMonth",
   initialDate,
-  onEntryDraftSubmit,
+  onEntryDraftCreate,
+  onEntryDraftUpdate,
   onVisibleRangeChange,
 }: CalendarProps) => {
   const controller = useCalendarController();
@@ -107,11 +110,47 @@ export const Calendar = ({
     };
   }, [editorState, handleMouseDown, handleKeyDown]);
 
+  useEffect(() => {
+    if (!editorState || !calendarRef.current) {
+      return;
+    }
+
+    const handleResize = () => {
+      if (!calendarRef.current) {
+        return;
+      }
+
+      const bounds = calendarRef.current.getBoundingClientRect();
+      const nextPosition = calculateEditorPosition(
+        calendarRef.current,
+        bounds.left + editorState.left,
+        bounds.top + editorState.top,
+      );
+
+      setEditorState((currentState) =>
+        currentState
+          ? {
+              ...currentState,
+              ...nextPosition,
+            }
+          : currentState,
+      );
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [editorState]);
+
   const openEditor = (
     clientX: number,
     clientY: number,
-    mode: CalendarEditorState["mode"],
-    entryId: string,
+    nextState: Pick<
+      CalendarEditorState,
+      "mode" | "entryId" | "originalStartDate" | "isRecurring"
+    >,
     values: EntryFormData,
   ) => {
     if (!calendarRef.current) {
@@ -120,8 +159,7 @@ export const Calendar = ({
 
     setEditorValues(values);
     setEditorState({
-      mode,
-      entryId,
+      ...nextState,
       ...calculateEditorPosition(calendarRef.current, clientX, clientY),
     });
   };
@@ -139,8 +177,12 @@ export const Calendar = ({
     openEditor(
       info.jsEvent.clientX,
       info.jsEvent.clientY,
-      "create",
-      createEntryId(),
+      {
+        mode: "create",
+        entryId: createEntryId(),
+        originalStartDate: undefined,
+        isRecurring: false,
+      },
       createFormValuesFromDateClick(info),
     );
   };
@@ -152,8 +194,12 @@ export const Calendar = ({
     openEditor(
       clientX,
       clientY,
-      "create",
-      createEntryId(),
+      {
+        mode: "create",
+        entryId: createEntryId(),
+        originalStartDate: undefined,
+        isRecurring: false,
+      },
       createFormValuesFromSelection(info),
     );
   };
@@ -169,13 +215,22 @@ export const Calendar = ({
     openEditor(
       info.jsEvent.clientX,
       info.jsEvent.clientY,
-      "edit",
-      calendarEvent?.id || fallbackId,
+      {
+        mode: "edit",
+        entryId: String(calendarEvent?.extendedProps?.entryId ?? fallbackId),
+        originalStartDate: calendarEvent?.extendedProps?.originalStartDate
+          ? calendarEvent.extendedProps.originalStartDate
+          : undefined,
+        isRecurring: calendarEvent?.extendedProps?.frequency !== "None",
+      },
       createFormValuesFromEvent(calendarEvent!, fallbackId),
     );
   };
 
-  const handleFormSubmit = async (data: EntryFormData) => {
+  const handleFormSubmit = async (
+    data: EntryFormData,
+    scope: EntryUpdateScope,
+  ) => {
     if (!editorState) {
       return;
     }
@@ -192,13 +247,22 @@ export const Calendar = ({
     try {
       if (editorState.mode === "create") {
         setIsSavingEntry(true);
-        await onEntryDraftSubmit?.(nextDraft);
+        await onEntryDraftCreate?.(nextDraft);
+      } else if (editorState.originalStartDate) {
+        const updateDraft: CalendarEntryUpdateDraft = {
+          ...nextDraft,
+          originalStartDate: editorState.originalStartDate,
+          scope: editorState.isRecurring ? scope : "All",
+        };
+
+        setIsSavingEntry(true);
+        await onEntryDraftUpdate?.(updateDraft);
       }
 
       toast.success(
         editorState.mode === "create"
           ? "Event created successfully"
-          : "Event updated locally",
+          : "Event updated successfully",
       );
       setEditorState(null);
     } catch {

@@ -30,6 +30,7 @@ export const viewOptions: Array<{ label: string; value: CalendarView }> = [
 export const tooltipWidth = 360;
 
 const tooltipHeight = 520;
+const editorViewportGutter = 12;
 
 export const createEntryId = () => crypto.randomUUID();
 
@@ -116,7 +117,7 @@ export const createFormValuesFromEvent = (
   const until = calendarEvent.extendedProps?.until
     ? format(
         new Date(calendarEvent.extendedProps.until.toString()),
-        "yyyy-MM-dd'T'HH:mm",
+        "yyyy-MM-dd",
       )
     : "";
 
@@ -135,12 +136,41 @@ export const calculateEditorPosition = (
   clientX: number,
   clientY: number,
 ): Omit<CalendarEditorState, "mode" | "entryId"> => {
+  const availableViewportWidth = Math.max(
+    0,
+    window.innerWidth - editorViewportGutter * 2,
+  );
+  const availableViewportHeight = Math.max(
+    0,
+    window.innerHeight - editorViewportGutter * 2,
+  );
+  const editorWidth = Math.min(tooltipWidth, availableViewportWidth);
+  const editorMaxHeight = Math.min(tooltipHeight, availableViewportHeight);
   const bounds = container.getBoundingClientRect();
-  const maxLeft = Math.max(0, bounds.width - tooltipWidth);
-  const maxTop = Math.max(0, bounds.height - tooltipHeight);
+  const minLeft = Math.max(0, editorViewportGutter - bounds.left);
+  const minTop = Math.max(0, editorViewportGutter - bounds.top);
+  const maxLeft = Math.max(
+    minLeft,
+    Math.min(
+      bounds.width - editorWidth,
+      window.innerWidth - editorViewportGutter - bounds.left - editorWidth,
+    ),
+  );
+  const maxTop = Math.max(
+    minTop,
+    Math.min(
+      bounds.height - editorMaxHeight,
+      window.innerHeight -
+        editorViewportGutter -
+        bounds.top -
+        editorMaxHeight,
+    ),
+  );
 
   return {
-    left: clamp(clientX - bounds.left, 0, maxLeft),
-    top: clamp(clientY - bounds.top, 0, maxTop),
+    left: clamp(clientX - bounds.left, minLeft, maxLeft),
+    top: clamp(clientY - bounds.top, minTop, maxTop),
+    width: editorWidth,
+    maxHeight: editorMaxHeight,
   };
 };

@@ -18,11 +18,21 @@ export interface CalendarEntryDraft {
   frequency: EntryFrequency;
 }
 
+export type EntryUpdateScope = "Single" | "Forward" | "All";
+
+export interface CalendarEntryUpdateDraft extends CalendarEntryDraft {
+  originalStartDate: string;
+  scope: EntryUpdateScope;
+}
+
 export interface CalendarProps {
   events?: EventInput[];
   initialView?: CalendarView;
   initialDate?: DateInput;
-  onEntryDraftSubmit?: (entry: CalendarEntryDraft) => Promise<void> | void;
+  onEntryDraftCreate?: (entry: CalendarEntryDraft) => Promise<void> | void;
+  onEntryDraftUpdate?: (
+    entry: CalendarEntryUpdateDraft,
+  ) => Promise<void> | void;
   onVisibleRangeChange?: (range: {
     startDate: Date;
     endDate: Date;
@@ -33,8 +43,12 @@ export interface CalendarProps {
 export interface CalendarEditorState {
   mode: "create" | "edit";
   entryId: string;
+  originalStartDate?: string;
+  isRecurring?: boolean;
   left: number;
   top: number;
+  width: number;
+  maxHeight: number;
 }
 
 export interface EntryFormData {

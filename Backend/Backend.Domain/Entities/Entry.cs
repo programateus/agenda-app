@@ -38,4 +38,20 @@ public class Entry
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void Update(string title, DateTime startDate, DateTime endDate, DateTime? until, Frequency frequency)
+    {
+        Title = title;
+        StartDate = startDate;
+        EndDate = endDate;
+        Until = until;
+        Frequency = frequency;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void EndRecurrence(DateTime date)
+    {
+        Until = date.AddDays(-1);
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

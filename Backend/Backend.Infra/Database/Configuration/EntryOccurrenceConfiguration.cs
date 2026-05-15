@@ -8,7 +8,7 @@ public class EntryOccurrenceConfiguration : IEntityTypeConfiguration<EntryOccurr
 {
     public void Configure(EntityTypeBuilder<EntryOccurrence> builder)
     {
-        builder.ToTable("entry_occurrence");
+        builder.ToTable("entry_occurrences");
         builder.HasKey(entryOccurrence => entryOccurrence.Id);
         builder.Property(entryOccurrence => entryOccurrence.Title).HasColumnName("title").HasMaxLength(255).IsRequired();
         builder.Property(entryOccurrence => entryOccurrence.StartDate).HasColumnName("start_date").IsRequired();

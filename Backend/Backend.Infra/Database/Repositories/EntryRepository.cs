@@ -13,9 +13,9 @@ public sealed class EntryRepository : IEntryRepository
         _dbContext = dbContext;
     }
     
-    public Task<Entry?> FindByIdAsync(Guid entryId, CancellationToken cancellationToken = default)
+    public async Task<Entry?> FindByIdAsync(Guid entryId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await _dbContext.Entries.FirstOrDefaultAsync(entry => entry.Id == entryId, cancellationToken);
     }
 
     public async Task CreateAsync(Entry entry, CancellationToken cancellationToken = default)
@@ -24,9 +24,10 @@ public sealed class EntryRepository : IEntryRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public Task UpdateAsync(Entry entry, CancellationToken cancellationToken = default)
+    public async Task UpdateAsync(Entry entry, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        _dbContext.Entries.Update(entry);
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     public Task DeleteAsync(Entry entry, CancellationToken cancellationToken = default)

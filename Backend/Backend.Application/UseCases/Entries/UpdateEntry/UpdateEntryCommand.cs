@@ -20,5 +20,6 @@ public sealed record UpdateEntryCommand(
     DateTime? Until,
     Frequency Frequency,
     Guid UserId,
-    UpdateScope Scope
+    UpdateScope Scope,
+    DateTime OriginalStartDate
 ): IRequest<Result<UpdateEntryResult, ApiError>>;

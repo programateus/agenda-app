@@ -22,5 +22,7 @@ public class UpdateEntryCommandValidator : AbstractValidator<UpdateEntryCommand>
             .GreaterThan(x => x.StartDate);
         RuleFor(x => x.Until)
             .GreaterThan(x => x.EndDate);
+        RuleFor(x => x.OriginalStartDate)
+            .NotEmpty();
     }
 }
