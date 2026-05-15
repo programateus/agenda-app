@@ -30,6 +30,7 @@ public class EntryController : ControllerBase
             request.Title,
             request.StartDate,
             request.EndDate,
+            request.Until,
             request.Frequency,
             userId
         );

@@ -54,6 +54,7 @@ export const Calendar = ({
     title: "",
     startDate: "",
     endDate: "",
+    until: "",
     frequency: "None",
   });
   const currentViewType = controller.view?.type;
@@ -184,6 +185,7 @@ export const Calendar = ({
       title: data.title,
       startDate: data.startDate,
       endDate: data.endDate,
+      until: data.frequency !== "None" && data.until ? data.until : null,
       frequency: data.frequency,
     };
 

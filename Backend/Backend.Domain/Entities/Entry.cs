@@ -15,6 +15,7 @@ public class Entry
     public string Title { get; private set; }
     public DateTime StartDate { get; private set; }
     public DateTime EndDate { get; private set; }
+    public DateTime? Until { get; private set; }
     public Frequency  Frequency { get; private set; }
     public User Owner { get; private set; } = null!;
     public Guid OwnerId { get; private set; }
@@ -25,12 +26,13 @@ public class Entry
     
     private Entry() {}
 
-    public Entry(string title, DateTime startDate, DateTime endDate, Frequency frequency, Guid ownerId)
+    public Entry(string title, DateTime startDate, DateTime endDate, DateTime? until, Frequency frequency, Guid ownerId)
     {
         Id = Guid.NewGuid();
         Title = title;
         StartDate = startDate;
         EndDate = endDate;
+        Until = until;
         Frequency = frequency;
         OwnerId = ownerId;
         CreatedAt = DateTime.UtcNow;

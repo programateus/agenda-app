@@ -14,6 +14,7 @@ public class EntryConfiguration: IEntityTypeConfiguration<Entry>
         builder.Property(entry => entry.Title).HasColumnName("title").HasMaxLength(255).IsRequired();
         builder.Property(entry => entry.StartDate).HasColumnName("start_date").IsRequired();
         builder.Property(entry => entry.EndDate).HasColumnName("end_date").IsRequired();
+        builder.Property(entry => entry.Until).HasColumnName("until");
         builder.Property(entry => entry.Frequency).HasColumnName("frequency").HasConversion<string>().IsRequired();
         builder.Property(entry => entry.OwnerId).HasColumnName("owner_id").IsRequired();
         builder.Property(entry => entry.CreatedAt).HasColumnName("created_at").IsRequired();

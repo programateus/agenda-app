@@ -29,6 +29,7 @@ public class CreateEntryCommandHandler  : IRequestHandler<CreateEntryCommand, Re
             request.Title,
             request.StartDate,
             request.EndDate,
+            request.Until,
             request.Frequency,
             request.UserId
         );

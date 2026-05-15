@@ -35,6 +35,9 @@ export const DashboardPage = () => {
           extendedProps: {
             entryId: entry.id,
             frequency: entry.frequency,
+            until: entry.until
+              ? parse(entry.until, "yyyy-MM-dd'T'HH:mm:ss", new Date())
+              : null,
             originalStartDate: parse(
               occurrence.originalStartDate,
               "yyyy-MM-dd'T'HH:mm:ss",
@@ -52,6 +55,7 @@ export const DashboardPage = () => {
       title: entry.title,
       startDate: entry.startDate,
       endDate: entry.endDate,
+      until: entry.until,
       frequency: entry.frequency,
     });
   };

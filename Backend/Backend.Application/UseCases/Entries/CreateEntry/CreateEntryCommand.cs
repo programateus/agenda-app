@@ -9,6 +9,7 @@ public record CreateEntryCommand(
     string Title,
     DateTime StartDate,
     DateTime EndDate,
+    DateTime? Until,
     Frequency Frequency,
     Guid UserId
 ): IRequest<Result<CreateEntryResult, ApiError>>;

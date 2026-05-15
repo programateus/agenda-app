@@ -11,57 +11,134 @@ public class EntryOccurrenceGenerator : IEntryOccurrenceGenerator
     public Entry Generate(Entry entry, DateTime rangeStartDate, DateTime rangeEndDate)
     {
         var frequency = MapEntryFrequencyToRRuleFrequency(entry.Frequency);
+
         if (frequency is null)
         {
-            var alreadyExists = entry.EntryOccurrences.Any(entryOccurrence =>
-                entryOccurrence.OriginalStartDate == entry.StartDate);
-
-            if (!alreadyExists)
-            {
-                entry.EntryOccurrences.Add(new EntryOccurrence(
-                    entry.Title,
-                    entry.StartDate,
-                    entry.StartDate,
-                    entry.EndDate,
-                    false,
-                    entry.Id
-                ));
-            }
-            
+            AddSingleOccurrence(entry);
             return entry;
         }
-        
-        var calendarEvent = new CalendarEvent
+
+        var calendarEvent = CreateCalendarEvent(entry, frequency.Value);
+
+        var occurrences = GetOccurrencesInRange(
+            calendarEvent,
+            rangeStartDate,
+            rangeEndDate
+        );
+
+        AddVirtualOccurrences(entry, occurrences);
+        RemoveCanceledOccurrences(entry);
+
+        return entry;
+    }
+
+    private void AddSingleOccurrence(Entry entry)
+    {
+        if (HasOccurrence(entry, entry.StartDate))
+        {
+            return;
+        }
+
+        entry.EntryOccurrences.Add(CreateEntryOccurrence(
+            entry,
+            originalStartDate: entry.StartDate,
+            startDate: entry.StartDate,
+            endDate: entry.EndDate
+        ));
+    }
+
+    private CalendarEvent CreateCalendarEvent(Entry entry, FrequencyType frequency)
+    {
+        return new CalendarEvent
         {
             Start = new CalDateTime(entry.StartDate),
             End = new CalDateTime(entry.EndDate),
-            RecurrenceRule = new RecurrencePattern(frequency.Value)
+            RecurrenceRule = CreateRecurrencePattern(entry, frequency)
         };
+    }
+
+    private RecurrencePattern CreateRecurrencePattern(Entry entry, FrequencyType frequency)
+    {
+        var recurrencePattern = new RecurrencePattern(frequency);
+
+        if (entry.Until is not null)
+        {
+            recurrencePattern.Until = new CalDateTime(
+                DateTime.SpecifyKind(entry.Until.Value, DateTimeKind.Utc)
+            );
+        }
+
+        return recurrencePattern;
+    }
+
+    private List<Occurrence> GetOccurrencesInRange(
+        CalendarEvent calendarEvent,
+        DateTime rangeStartDate,
+        DateTime rangeEndDate)
+    {
         var rangeStart = new CalDateTime(rangeStartDate);
         var rangeEnd = new CalDateTime(rangeEndDate);
 
-        var occurrences = calendarEvent
+        return calendarEvent
             .GetOccurrences(rangeStart)
             .TakeWhileBefore(rangeEnd.AddDays(1))
             .ToList();
+    }
 
+    private void AddVirtualOccurrences(Entry entry, IEnumerable<Occurrence> occurrences)
+    {
         foreach (var occurrence in occurrences)
         {
-            var entryOccurrence = GenerateVirtualEntryOccurrence(entry, occurrence);
-            if (entryOccurrence is null) continue;
-            entry.EntryOccurrences.Add(entryOccurrence);
+            var startDate = occurrence.Period.StartTime.Value;
+
+            if (HasOccurrence(entry, startDate))
+            {
+                continue;
+            }
+
+            var endDate = occurrence.Period.EffectiveEndTime?.Value ?? startDate;
+
+            entry.EntryOccurrences.Add(CreateEntryOccurrence(
+                entry,
+                originalStartDate: startDate,
+                startDate: startDate,
+                endDate: endDate
+            ));
         }
-        
+    }
+
+    private void RemoveCanceledOccurrences(Entry entry)
+    {
         var canceledOccurrences = entry.EntryOccurrences
             .Where(entryOccurrence => entryOccurrence.IsCanceled)
             .ToList();
 
-        foreach (var occurrence in canceledOccurrences)
+        foreach (var canceledOccurrence in canceledOccurrences)
         {
-            entry.EntryOccurrences.Remove(occurrence);
+            entry.EntryOccurrences.Remove(canceledOccurrence);
         }
+    }
 
-        return entry;
+    private bool HasOccurrence(Entry entry, DateTime originalStartDate)
+    {
+        return entry.EntryOccurrences.Any(entryOccurrence =>
+            entryOccurrence.OriginalStartDate == originalStartDate);
+    }
+
+    private EntryOccurrence CreateEntryOccurrence(
+        Entry entry,
+        DateTime originalStartDate,
+        DateTime startDate,
+        DateTime endDate)
+    {
+        return new EntryOccurrence(
+            entry.Title,
+            originalStartDate,
+            startDate,
+            endDate,
+            false,
+            entry.Id
+        );
     }
 
     private FrequencyType? MapEntryFrequencyToRRuleFrequency(Frequency frequency)
@@ -74,26 +151,5 @@ public class EntryOccurrenceGenerator : IEntryOccurrenceGenerator
             Frequency.Yearly => FrequencyType.Yearly,
             _ => null
         };
-    }
-
-    private EntryOccurrence? GenerateVirtualEntryOccurrence(Entry entry, Occurrence occurrence)
-    {
-        var startDate = occurrence.Period.StartTime.Value;
-        var endDate = occurrence.Period.EffectiveEndTime?.Value ?? startDate;
-        var existingEntryOccurrence =
-            entry.EntryOccurrences.FirstOrDefault(entryOccurrence => entryOccurrence.OriginalStartDate == startDate);
-        if (existingEntryOccurrence is not null)
-        {
-            return null;
-        }
-        
-        return new EntryOccurrence(
-            entry.Title,
-            startDate,
-            startDate,
-            endDate,
-            false,
-            entry.Id
-        );
     }
 }

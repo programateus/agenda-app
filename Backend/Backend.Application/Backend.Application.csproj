@@ -20,6 +20,7 @@
 
     <ItemGroup>
       <Folder Include="UseCases\Auth\" />
+      <Folder Include="UseCases\Entries\UpdateEntry\" />
     </ItemGroup>
 
 </Project>

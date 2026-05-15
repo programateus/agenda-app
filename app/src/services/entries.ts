@@ -5,6 +5,7 @@ export type CreateEntryRequest = {
   title: string;
   startDate: string;
   endDate: string;
+  until: string | null;
   frequency: EntryFrequency;
 };
 
@@ -26,6 +27,7 @@ export type Entry = {
   title: string;
   startDate: string;
   endDate: string;
+  until: string | null;
   frequency: EntryFrequency;
   ownerId: string;
   createdAt: string;

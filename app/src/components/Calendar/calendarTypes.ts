@@ -14,6 +14,7 @@ export interface CalendarEntryDraft {
   title: string;
   startDate: string;
   endDate: string;
+  until: string | null;
   frequency: EntryFrequency;
 }
 
@@ -40,5 +41,6 @@ export interface EntryFormData {
   title: string;
   startDate: string;
   endDate: string;
+  until: string;
   frequency: EntryFrequency;
 }

@@ -29,7 +29,7 @@ export const viewOptions: Array<{ label: string; value: CalendarView }> = [
 
 export const tooltipWidth = 360;
 
-const tooltipHeight = 430;
+const tooltipHeight = 520;
 
 export const createEntryId = () => crypto.randomUUID();
 
@@ -47,6 +47,7 @@ export const createFormValuesFromDates = (
     title: "",
     startDate: format(startDate, "yyyy-MM-dd'T'HH:mm"),
     endDate: format(safeEndDate, "yyyy-MM-dd'T'HH:mm"),
+    until: "",
     frequency: "None",
   };
 };
@@ -112,12 +113,19 @@ export const createFormValuesFromEvent = (
   )
     ? (calendarEvent.extendedProps?.frequency as EntryFrequency)
     : "None";
+  const until = calendarEvent.extendedProps?.until
+    ? format(
+        new Date(calendarEvent.extendedProps.until.toString()),
+        "yyyy-MM-dd'T'HH:mm",
+      )
+    : "";
 
   return {
     id: String(calendarEvent.id ?? fallbackId),
     title: calendarEvent.title ?? "",
     startDate: format(startDate, "yyyy-MM-dd'T'HH:mm"),
     endDate: format(endDate, "yyyy-MM-dd'T'HH:mm"),
+    until,
     frequency,
   };
 };
