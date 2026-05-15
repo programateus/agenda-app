@@ -1,11 +1,13 @@
 ﻿using FluentValidation;
 
-namespace Backend.Application.UseCases.Entries.CreateEntry;
+namespace Backend.Application.UseCases.Entries.UpdateEntry;
 
-public class CreateEntryCommandValidator : AbstractValidator<CreateEntryCommand>
+public class UpdateEntryCommandValidator : AbstractValidator<UpdateEntryCommand>
 {
-    public CreateEntryCommandValidator()
+    public UpdateEntryCommandValidator()
     {
+        RuleFor(x => x.Id)
+            .NotEmpty();
         RuleFor(x => x.UserId)
             .NotEmpty();
         RuleFor(x => x.Frequency)
@@ -20,6 +22,5 @@ public class CreateEntryCommandValidator : AbstractValidator<CreateEntryCommand>
             .GreaterThan(x => x.StartDate);
         RuleFor(x => x.Until)
             .GreaterThan(x => x.EndDate);
-
     }
 }

@@ -18,6 +18,13 @@ public class EntryOccurrenceConfiguration : IEntityTypeConfiguration<EntryOccurr
         builder.Property(entryOccurrence => entryOccurrence.EntryId).HasColumnName("entry_id").IsRequired();
         builder.Property(entryOccurrence => entryOccurrence.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(entryOccurrence => entryOccurrence.UpdatedAt).HasColumnName("updated_at").IsRequired();
+
+        builder.HasIndex(entryOccurrence => new
+            {
+                entryOccurrence.EntryId,
+                entryOccurrence.OriginalStartDate
+            })
+            .IsUnique();
         
         builder.HasOne(entryOccurrence => entryOccurrence.Entry)
             .WithMany(entryOccurrence => entryOccurrence.EntryOccurrences)
