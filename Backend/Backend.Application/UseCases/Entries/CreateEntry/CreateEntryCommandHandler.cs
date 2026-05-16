@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Common.Errors;
+using Backend.Application.Contracts.PubSub;
 using Backend.Domain.Entities;
 using Backend.Domain.Repositories;
 using CSharpFunctionalExtensions;
@@ -10,11 +11,16 @@ public class CreateEntryCommandHandler  : IRequestHandler<CreateEntryCommand, Re
 {
     private readonly IUserRepository _userRepository;
     private readonly IEntryRepository _entryRepository;
+    private readonly IEntryEventPublisher _entryEventPublisher;
 
-    public CreateEntryCommandHandler(IUserRepository userRepository, IEntryRepository entryRepository)
+    public CreateEntryCommandHandler(
+        IUserRepository userRepository,
+        IEntryRepository entryRepository,
+        IEntryEventPublisher entryEventPublisher)
     {
         _userRepository = userRepository;
         _entryRepository = entryRepository;
+        _entryEventPublisher = entryEventPublisher;
     }
 
     public async Task<Result<CreateEntryResult, ApiError>> Handle(CreateEntryCommand request, CancellationToken cancellationToken)
@@ -34,6 +40,7 @@ public class CreateEntryCommandHandler  : IRequestHandler<CreateEntryCommand, Re
             request.UserId
         );
         await _entryRepository.CreateAsync(entry, cancellationToken);
+        await _entryEventPublisher.PublishCreatedAsync(entry, cancellationToken);
 
         return Result.Success<CreateEntryResult, ApiError>(new CreateEntryResult());
     }

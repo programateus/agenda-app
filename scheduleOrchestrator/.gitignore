@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+.env.local
+coverage/
+prisma/migrations/
+schedule_orchestrator_postgres_data

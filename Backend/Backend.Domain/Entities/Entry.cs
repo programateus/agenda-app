@@ -1,4 +1,6 @@
-﻿namespace Backend.Domain.Entities;
+﻿using System.Text.Json.Serialization;
+
+namespace Backend.Domain.Entities;
 
 public enum Frequency {
     Daily,
@@ -17,6 +19,8 @@ public class Entry
     public DateTime EndDate { get; private set; }
     public DateTime? Until { get; private set; }
     public Frequency  Frequency { get; private set; }
+    
+    [JsonIgnore]
     public User Owner { get; private set; } = null!;
     public Guid OwnerId { get; private set; }
     public DateTime CreatedAt { get; private set; }
