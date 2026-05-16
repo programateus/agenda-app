@@ -18,7 +18,6 @@ public class EventBridgeEntryEventPublisher: IEntryEventPublisher
         _configuration = configuration;
     }
 
-
     public async Task PublishCreatedAsync(Entry entry, CancellationToken cancellationToken)
     {
         var request = new PutEventsRequest
@@ -45,7 +44,26 @@ public class EventBridgeEntryEventPublisher: IEntryEventPublisher
 
     public async Task PublishUpdatedAsync(Entry entry, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var request = new PutEventsRequest
+        {
+            Entries =
+            [
+                new PutEventsRequestEntry
+                {
+                    EventBusName = _configuration["EventBridge:EventBusName"],
+                    Source = _configuration["EventBridge:Source"],
+                    DetailType = _configuration["EventBridge:DetailTypes:EntryUpdated"],
+                    Detail = JsonSerializer.Serialize(entry)
+                }
+            ]
+        };
+        var response = await _amazonEventBridge.PutEventsAsync(request, cancellationToken);
+        
+        if (response.FailedEntryCount > 0)
+        {
+            // TODO: handle error
+            throw new Exception("Failed to publish events");
+        }
     }
 
     public Task PublishDeletedAsync(Guid entryId, Guid userId, CancellationToken cancellationToken)

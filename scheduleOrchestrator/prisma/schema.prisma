@@ -32,4 +32,22 @@ model Entry {
   frequency String
   createdAt DateTime
   updatedAt DateTime
+
+  entryOccurrences EntryOccurrence[]
+}
+
+model EntryOccurrence {
+  id                String   @id
+  entryId           String
+  title             String
+  startDate         DateTime
+  originalStartDate DateTime
+  endDate           DateTime
+  isCanceled        Boolean
+  createdAt         DateTime
+  updatedAt         DateTime
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, originalStartDate])
 }

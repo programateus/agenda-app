@@ -1,4 +1,5 @@
 ﻿using Backend.Application.Common.Errors;
+using Backend.Application.Contracts.PubSub;
 using Backend.Domain.Entities;
 using Backend.Domain.Repositories;
 using CSharpFunctionalExtensions;
@@ -10,11 +11,19 @@ public class UpdateEntryCommandHandler : IRequestHandler<UpdateEntryCommand, Res
 {
     private readonly IEntryRepository _entryRepository;
     private readonly IEntryOccurrenceRepository _entryOccurrenceRepository;
+    private readonly IEntryEventPublisher _entryEventPublisher;
+    private readonly IEntryOccurrenceEventPublisher _entryOccurrenceEventPublisher;
 
-    public UpdateEntryCommandHandler(IEntryRepository entryRepository, IEntryOccurrenceRepository entryOccurrenceRepository)
+    public UpdateEntryCommandHandler(
+        IEntryRepository entryRepository,
+        IEntryOccurrenceRepository entryOccurrenceRepository,
+        IEntryEventPublisher entryEventPublisher,
+        IEntryOccurrenceEventPublisher entryOccurrenceEventPublisher)
     {
         _entryRepository = entryRepository;
         _entryOccurrenceRepository = entryOccurrenceRepository;
+        _entryEventPublisher = entryEventPublisher;
+        _entryOccurrenceEventPublisher = entryOccurrenceEventPublisher;
     }
     
     public async Task<Result<UpdateEntryResult, ApiError>> Handle(UpdateEntryCommand request,
@@ -65,6 +74,7 @@ public class UpdateEntryCommandHandler : IRequestHandler<UpdateEntryCommand, Res
             );
 
             await _entryOccurrenceRepository.CreateAsync(occurrence, cancellationToken);
+            await _entryOccurrenceEventPublisher.PublishUpsertedAsync(occurrence, cancellationToken);
             return;
         }
         
@@ -74,6 +84,8 @@ public class UpdateEntryCommandHandler : IRequestHandler<UpdateEntryCommand, Res
             request.EndDate
         );
         await _entryOccurrenceRepository.UpdateAsync(occurrence, cancellationToken);
+        await _entryOccurrenceEventPublisher.PublishUpsertedAsync(occurrence, cancellationToken);
+        
     }
 
     private async Task UpdateForward(
@@ -94,6 +106,10 @@ public class UpdateEntryCommandHandler : IRequestHandler<UpdateEntryCommand, Res
             _entryRepository.UpdateAsync(entry, cancellationToken),
             _entryRepository.CreateAsync(nextEntry, cancellationToken)
         ]);
+        await Task.WhenAll([
+            _entryEventPublisher.PublishUpdatedAsync(entry, cancellationToken),
+            _entryEventPublisher.PublishCreatedAsync(nextEntry, cancellationToken)
+        ]);
     }
 
     private async Task UpdateAll(
@@ -109,5 +125,6 @@ public class UpdateEntryCommandHandler : IRequestHandler<UpdateEntryCommand, Res
             request.Frequency
         );
         await _entryRepository.UpdateAsync(entry, cancellationToken);
+        await _entryEventPublisher.PublishUpdatedAsync(entry, cancellationToken);
     }
 }

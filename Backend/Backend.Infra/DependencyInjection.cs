@@ -11,7 +11,6 @@ using Backend.Infra.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Amazon.Extensions.NETCore.Setup;
 using Backend.Application.Contracts.PubSub;
 using Backend.Infra.Aws.PubSub;
 
@@ -41,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IEntryOccurrenceGenerator, EntryOccurrenceGenerator>();
         services.AddScoped<IEntryEventPublisher, EventBridgeEntryEventPublisher>();
+        services.AddScoped<IEntryOccurrenceEventPublisher, EventBridgeEntryOccurrenceEventPublisher>();
         return services;
     }
 }

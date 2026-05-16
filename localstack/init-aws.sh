@@ -50,7 +50,8 @@ awslocal events put-rule \
   --event-pattern '{"source":["schedule.backend"],"detail-type": [
       "ScheduleEntryCreated",
       "ScheduleEntryUpdated",
-      "ScheduleEntryDeleted"
+      "ScheduleEntryDeleted",
+      "ScheduleEntryOccurrenceUpserted"
   ]}'
 
 awslocal sqs set-queue-attributes \

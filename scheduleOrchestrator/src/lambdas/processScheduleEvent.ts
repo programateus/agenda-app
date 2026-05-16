@@ -1,10 +1,13 @@
 import type { SQSEvent, SQSBatchResponse } from "aws-lambda";
-import { eventBridgeEnvelopeSchema } from "@src/events/envelope";
-import { handleEntryCreated } from "@src/handlers/handleEntryCreated";
+import { eventBridgeEnvelopeSchema } from "@src/schemas/envelope";
+import { handleEntryUpserted } from "@src/handlers/handleEntryUpserted";
 import { prisma } from "@src/infra/prisma";
+import { handleEntryOccurrenceUpserted } from "@src/handlers/handleEntryOccurrenceUpserted";
 
 const handlers: Record<string, (detail: unknown) => Promise<void>> = {
-  ScheduleEntryCreated: handleEntryCreated,
+  ScheduleEntryCreated: handleEntryUpserted,
+  ScheduleEntryUpdated: handleEntryUpserted,
+  ScheduleEntryOccurrenceUpserted: handleEntryOccurrenceUpserted,
 };
 
 export async function handler(event: SQSEvent): Promise<SQSBatchResponse> {

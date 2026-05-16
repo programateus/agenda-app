@@ -1,8 +1,8 @@
-import { entryCreatedSchema } from "@src/events/entryCreated";
+import { entrySchema } from "@src/schemas/entry";
 import { prisma } from "@src/infra/prisma";
 
-export async function handleEntryCreated(detail: unknown): Promise<void> {
-  const entry = entryCreatedSchema.parse(detail);
+export async function handleEntryUpserted(detail: unknown): Promise<void> {
+  const entry = entrySchema.parse(detail);
 
   await prisma.entry.upsert({
     where: { id: entry.entryId },

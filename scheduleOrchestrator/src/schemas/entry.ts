@@ -19,7 +19,7 @@ const frequencyByIndex = [
   "None",
 ] as const;
 
-const rawEntryCreatedSchema = z.object({
+const rawEntrySchema = z.object({
   Id: z.uuid(),
   Title: z.string().min(1),
   StartDate: flexDateSchema,
@@ -32,7 +32,7 @@ const rawEntryCreatedSchema = z.object({
   EntryOccurrences: z.array(z.unknown()),
 });
 
-export const entryCreatedSchema = rawEntryCreatedSchema.transform((entry) => ({
+export const entrySchema = rawEntrySchema.transform((entry) => ({
   entryId: entry.Id,
   userId: entry.OwnerId,
   title: entry.Title,
@@ -44,4 +44,4 @@ export const entryCreatedSchema = rawEntryCreatedSchema.transform((entry) => ({
   updatedAt: entry.UpdatedAt,
 }));
 
-export type EntryCreatedPayload = z.infer<typeof entryCreatedSchema>;
+export type EntryPayload = z.infer<typeof entrySchema>;
