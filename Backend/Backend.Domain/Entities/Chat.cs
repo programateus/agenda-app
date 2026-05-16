@@ -33,4 +33,10 @@ public class Chat
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void RegisterMessage(DateTime createdAt)
+    {
+        LastMessageAt = createdAt;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

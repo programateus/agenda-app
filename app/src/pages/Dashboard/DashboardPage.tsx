@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { EventInput } from "@fullcalendar/react";
 
 import { Calendar } from "@/components/Calendar/Calendar";
+import { ChatPanel } from "@/components/ChatPanel";
 import type {
   CalendarEntryDeleteDraft,
   CalendarEntryDraft,
@@ -85,26 +86,43 @@ export const DashboardPage = () => {
     });
   };
 
-  return (
-    <div className="h-full">
-      <Calendar
-        events={events}
-        onEntryDraftCreate={handleCreate}
-        onEntryDraftUpdate={handleUpdate}
-        onEntryDraftDelete={handleDelete}
-        onVisibleRangeChange={({ startDate, endDate }) => {
-          setVisibleRange((currentRange) => {
-            if (
-              currentRange.startDate.getTime() === startDate.getTime() &&
-              currentRange.endDate.getTime() === endDate.getTime()
-            ) {
-              return currentRange;
-            }
+  const handleVisibleRangeChange = ({
+    startDate,
+    endDate,
+  }: {
+    startDate: Date;
+    endDate: Date;
+    view: string;
+  }) => {
+    setVisibleRange((currentRange) => {
+      if (
+        currentRange.startDate.getTime() === startDate.getTime() &&
+        currentRange.endDate.getTime() === endDate.getTime()
+      ) {
+        return currentRange;
+      }
 
-            return { startDate, endDate };
-          });
-        }}
-      />
+      return { startDate, endDate };
+    });
+  };
+
+  return (
+    <div className="h-full overflow-auto bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.12),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.10),_transparent_24%),linear-gradient(180deg,_#f8fafc_0%,_#eef4ff_100%)] p-4">
+      <div className="grid h-full min-h-[48rem] gap-4 2xl:grid-cols-[minmax(0,1fr)_34rem]">
+        <div className="min-h-[32rem] min-w-0 overflow-hidden rounded-[2rem] border border-white/70 shadow-sm">
+          <Calendar
+            events={events}
+            onEntryDraftCreate={handleCreate}
+            onEntryDraftUpdate={handleUpdate}
+            onEntryDraftDelete={handleDelete}
+            onVisibleRangeChange={handleVisibleRangeChange}
+          />
+        </div>
+
+        <div className="min-w-0">
+          <ChatPanel />
+        </div>
+      </div>
     </div>
   );
 };

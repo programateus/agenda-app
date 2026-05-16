@@ -17,3 +17,9 @@ const entriesQueryKeys = createQueryKeys("entries", {
 });
 
 export const queryKeys = mergeQueryKeys(entriesQueryKeys);
+
+export const chatQueryKeys = {
+  all: ["chats"] as const,
+  list: ["chats", "list"] as const,
+  messages: (chatId: string) => ["chats", "messages", chatId] as const,
+};
