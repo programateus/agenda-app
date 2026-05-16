@@ -24,6 +24,8 @@ import { useListChatMessagesQuery } from "@/hooks/reactQuery/chats/useListChatMe
 import { useListChatsQuery } from "@/hooks/reactQuery/chats/useListChatsQuery";
 import type { ChatMessage } from "@/services/chats";
 
+import { useChatConnection } from "./useChatConnection";
+
 const formatChatTimestamp = (value: string) => {
   const date = parseISO(value);
 
@@ -61,7 +63,7 @@ const getSenderLabel = (message: ChatMessage, userName?: string | null) => {
 };
 
 export const ChatPanel = () => {
-  const { user } = useAuth();
+  const { user, accessToken } = useAuth();
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null);
   const [draftMessage, setDraftMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -88,6 +90,10 @@ export const ChatPanel = () => {
     useCreateChatMutation();
   const { mutateAsync: createChatMessage, isPending: isSendingMessage } =
     useCreateChatMessageMutation();
+  const connection = useChatConnection({
+    accessToken,
+    selectedChatId,
+  });
 
   useEffect(() => {
     if (!chats.length) {
@@ -123,6 +129,13 @@ export const ChatPanel = () => {
     activeChat && activeChatIndex >= 0
       ? getChatTitle(activeChatIndex)
       : "Select a chat";
+  const liveUpdatesLabel = {
+    idle: "Live updates unavailable",
+    connecting: "Connecting live updates...",
+    connected: "Live updates connected",
+    reconnecting: "Reconnecting live updates...",
+    error: "Live updates unavailable",
+  }[connection.status];
 
   const handleSelectChat = (chatId: string) => {
     setSelectedChatId(chatId);
@@ -168,7 +181,7 @@ export const ChatPanel = () => {
   };
 
   return (
-    <Surface className="flex h-full min-h-[24rem] min-w-0 flex-col rounded-[2rem] border border-default-200 bg-white/90 p-3 shadow-sm backdrop-blur">
+    <Surface className="flex h-full min-h-[24rem] min-w-0 flex-col rounded-lg border border-default-200 bg-white/90 p-3 shadow-sm backdrop-blur">
       <div className="flex items-start justify-between gap-3 border-b border-default-200 px-2 pb-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-default-500">
@@ -198,7 +211,7 @@ export const ChatPanel = () => {
       )}
 
       <div className="mt-3 flex min-h-0 flex-1 flex-col gap-3">
-        <Surface className="flex min-h-[8.5rem] flex-col rounded-[1.5rem] border border-default-200 bg-default-50/80 p-2">
+        <Surface className="flex min-h-[8.5rem] flex-col rounded-lg border border-default-200 bg-default-50/80 p-2">
           <div className="flex items-center justify-between px-2 pb-2">
             <div>
               <p className="text-sm font-semibold text-default-800">Chats</p>
@@ -232,7 +245,7 @@ export const ChatPanel = () => {
                     aria-controls={`chat-panel-${chat.id}`}
                     onClick={() => handleSelectChat(chat.id)}
                     className={[
-                      "w-56 shrink-0 rounded-[1.25rem] border px-3 py-3 text-left transition sm:w-64",
+                      "w-56 shrink-0 rounded-lg border px-3 py-3 text-left transition sm:w-64",
                       isActive
                         ? "border-primary bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20"
                         : "border-default-200 bg-white hover:border-default-300 hover:bg-default-100/80",
@@ -285,7 +298,7 @@ export const ChatPanel = () => {
               })}
 
               {!isLoadingChats && !chats.length && (
-                <div className="flex min-h-24 w-full min-w-56 items-center justify-center rounded-[1.25rem] border border-dashed border-default-300 bg-white/70 px-4 py-6 text-center text-sm text-default-500">
+                <div className="flex min-h-24 w-full min-w-56 items-center justify-center rounded-lg border border-dashed border-default-300 bg-white/70 px-4 py-6 text-center text-sm text-default-500">
                   No chats yet.
                 </div>
               )}
@@ -295,7 +308,7 @@ export const ChatPanel = () => {
 
         <Surface
           id={selectedChatId ? `chat-panel-${selectedChatId}` : undefined}
-          className="flex min-h-0 min-w-0 flex-1 flex-col rounded-[1.5rem] border border-default-200 bg-white p-3"
+          className="flex min-h-0 min-w-0 flex-1 flex-col rounded-lg border border-default-200 bg-white p-3"
         >
           <div className="border-b border-default-200 pb-3">
             <div className="flex items-center justify-between gap-3">
@@ -305,8 +318,11 @@ export const ChatPanel = () => {
                 </p>
                 <p className="text-xs text-default-500">
                   {activeChat
-                    ? `Active conversation with ${user?.name ?? "you"} • Updated at ${formatChatTimestamp(activeChat.updatedAt)}`
+                    ? `Active conversation with ${user?.name ?? "you"} - Updated at ${formatChatTimestamp(activeChat.updatedAt)}`
                     : "Create a new chat to get started"}
+                </p>
+                <p className="mt-1 text-xs text-default-400">
+                  {liveUpdatesLabel}
                 </p>
               </div>
               {isFetchingMessages && selectedChatId && <Spinner size="sm" />}
@@ -319,7 +335,7 @@ export const ChatPanel = () => {
             </div>
           ) : (
             <>
-              <ScrollShadow className="mt-3 min-h-0 flex-1 min-w-0 pr-2">
+              <ScrollShadow className="mt-3 min-h-0 min-w-0 flex-1 overflow-y-auto pr-2">
                 <div className="space-y-3">
                   {isLoadingMessages ? (
                     <div className="flex h-full min-h-48 items-center justify-center">
@@ -342,7 +358,7 @@ export const ChatPanel = () => {
                         >
                           <div
                             className={[
-                              "max-w-[85%] rounded-[1.5rem] px-4 py-3 shadow-sm",
+                              "max-w-[85%] rounded-lg px-4 py-3 shadow-sm",
                               isCurrentUser
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-default-100 text-default-900",
@@ -371,7 +387,7 @@ export const ChatPanel = () => {
                       );
                     })
                   ) : (
-                    <div className="flex min-h-48 items-center justify-center rounded-[1.5rem] border border-dashed border-default-300 bg-default-50/60 px-6 text-center text-sm text-default-500">
+                    <div className="flex min-h-48 items-center justify-center rounded-lg border border-dashed border-default-300 bg-default-50/60 px-6 text-center text-sm text-default-500">
                       This chat does not have any messages yet.
                     </div>
                   )}

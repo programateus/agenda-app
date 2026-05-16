@@ -1,4 +1,5 @@
 using Backend.Application.Common.Errors;
+using Backend.Application.Contracts.PubSub;
 using Backend.Domain.Entities;
 using Backend.Domain.Repositories;
 using CSharpFunctionalExtensions;
@@ -11,13 +12,16 @@ public sealed class CreateChatMessageCommandHandler
 {
     private readonly IChatRepository _chatRepository;
     private readonly IChatMessageRepository _chatMessageRepository;
+    private readonly IChatMessageEventPublisher _chatMessageEventPublisher;
 
     public CreateChatMessageCommandHandler(
         IChatRepository chatRepository,
-        IChatMessageRepository chatMessageRepository)
+        IChatMessageRepository chatMessageRepository,
+        IChatMessageEventPublisher chatMessageEventPublisher)
     {
         _chatRepository = chatRepository;
         _chatMessageRepository = chatMessageRepository;
+        _chatMessageEventPublisher = chatMessageEventPublisher;
     }
 
     public async Task<Result<CreateChatMessageResult, ApiError>> Handle(
@@ -43,6 +47,18 @@ public sealed class CreateChatMessageCommandHandler
 
         chat.RegisterMessage(message.CreatedAt);
         await _chatRepository.UpdateAsync(chat, cancellationToken);
+
+        await _chatMessageEventPublisher.PublishCreatedAsync(
+            new ChatMessageCreatedIntegrationEvent(
+                message.Id,
+                message.ChatId,
+                request.UserId,
+                message.TraceId,
+                message.Content,
+                message.CreatedAt
+            ),
+            cancellationToken
+        );
 
         return Result.Success<CreateChatMessageResult, ApiError>(
             new CreateChatMessageResult(message.Id, message.ChatId, message.TraceId, message.Status, message.CreatedAt)

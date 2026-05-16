@@ -4,6 +4,7 @@ import { handleEntryUpserted } from "@src/handlers/handleEntryUpserted";
 import { prisma } from "@src/infra/prisma";
 import { handleEntryOccurrenceUpserted } from "@src/handlers/handleEntryOccurrenceUpserted";
 import { handleEntryDeleted } from "@src/handlers/handleEntryDeleted";
+import { handleChatMessageCreated } from "@src/handlers/handleChatMessageCreated";
 import { ScheduleEvent } from "./types";
 
 const handlers: Record<ScheduleEvent, (detail: unknown) => Promise<void>> = {
@@ -11,6 +12,7 @@ const handlers: Record<ScheduleEvent, (detail: unknown) => Promise<void>> = {
   ScheduleEntryUpdated: handleEntryUpserted,
   ScheduleEntryDeleted: handleEntryDeleted,
   ScheduleEntryOccurrenceUpserted: handleEntryOccurrenceUpserted,
+  ScheduleChatMessageCreated: handleChatMessageCreated,
 };
 
 export async function handler(event: SQSEvent): Promise<SQSBatchResponse> {

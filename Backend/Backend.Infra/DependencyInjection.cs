@@ -1,9 +1,12 @@
-﻿using Amazon.EventBridge;
+using Amazon.EventBridge;
+using Amazon.SQS;
 using Backend.Application.Contracts.Auth;
 using Backend.Application.Contracts.EntryGenerator;
+using Backend.Application.Contracts.PubSub;
 using Backend.Application.Contracts.Security;
 using Backend.Domain.Repositories;
 using Backend.Infra.Auth;
+using Backend.Infra.Aws.PubSub;
 using Backend.Infra.Database;
 using Backend.Infra.Database.Repositories;
 using Backend.Infra.EntryGenerator;
@@ -11,20 +14,18 @@ using Backend.Infra.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Backend.Application.Contracts.PubSub;
-using Backend.Infra.Aws.PubSub;
 
 namespace Backend.Infra;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfra(this IServiceCollection services,  IConfiguration configuration)
+    public static IServiceCollection AddInfra(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContextPool<AppDbContext>(options =>
         {
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
         });
-        
+
         services.Configure<JwtOptions>(
             configuration.GetSection("Jwt")
         );
@@ -32,6 +33,7 @@ public static class DependencyInjection
         var awsOptions = configuration.GetAWSOptions();
         services.AddDefaultAWSOptions(awsOptions);
         services.AddAWSService<IAmazonEventBridge>();
+        services.AddAWSService<IAmazonSQS>();
 
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IEntryRepository, EntryRepository>();
@@ -43,6 +45,7 @@ public static class DependencyInjection
         services.AddScoped<IEntryOccurrenceGenerator, EntryOccurrenceGenerator>();
         services.AddScoped<IEntryEventPublisher, EventBridgeEntryEventPublisher>();
         services.AddScoped<IEntryOccurrenceEventPublisher, EventBridgeEntryOccurrenceEventPublisher>();
+        services.AddScoped<IChatMessageEventPublisher, EventBridgeChatMessageEventPublisher>();
         return services;
     }
 }

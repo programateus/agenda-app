@@ -1,9 +1,14 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using Backend.Application;
+using Backend.Application.Contracts.Realtime;
 using Backend.Infra;
 using Backend.Infra.Auth;
+using Backend.Lambda.EventBridge;
+using Backend.Lambda.Hubs;
+using Backend.Lambda.Realtime;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
@@ -23,13 +28,17 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(allowedCorsOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 builder.Services.AddOpenApi();
+builder.Services.AddSignalR();
 builder.Services.AddApplication();
 builder.Services.AddInfra(builder.Configuration);
+builder.Services.AddScoped<IChatMessageNotifier, SignalRChatMessageNotifier>();
+builder.Services.AddHostedService<ChatResponseEventConsumer>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -55,6 +64,21 @@ builder.Services
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrWhiteSpace(accessToken) && path.StartsWithSegments("/hubs/chat"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 var app = builder.Build();
@@ -77,5 +101,6 @@ app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

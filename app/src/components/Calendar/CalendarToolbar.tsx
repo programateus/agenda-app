@@ -25,7 +25,7 @@ export const CalendarToolbar = ({
   };
 
   return (
-    <div className="flex shrink-0 items-center justify-between p-2">
+    <div className="flex shrink-0 items-center justify-between">
       <ButtonGroup>
         {viewOptions.map((viewOption) => (
           <Button

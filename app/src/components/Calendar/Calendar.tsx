@@ -297,7 +297,10 @@ export const Calendar = ({
   };
 
   return (
-    <div ref={calendarRef} className="relative flex h-full flex-col bg-white">
+    <div
+      ref={calendarRef}
+      className="relative flex h-full flex-col bg-white p-2 space-y-2"
+    >
       <CalendarToolbar
         activeView={activeView}
         controller={controller}

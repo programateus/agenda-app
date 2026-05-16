@@ -107,9 +107,9 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="h-full overflow-auto bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.12),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.10),_transparent_24%),linear-gradient(180deg,_#f8fafc_0%,_#eef4ff_100%)] p-4">
-      <div className="grid h-full min-h-[48rem] gap-4 2xl:grid-cols-[minmax(0,1fr)_34rem]">
-        <div className="min-h-[32rem] min-w-0 overflow-hidden rounded-[2rem] border border-white/70 shadow-sm">
+    <div className="h-full min-h-0 overflow-y-auto bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.12),_transparent_28%),radial-gradient(circle_at_bottom_right,_rgba(34,197,94,0.10),_transparent_24%),linear-gradient(180deg,_#f8fafc_0%,_#eef4ff_100%)] p-4 2xl:overflow-hidden">
+      <div className="grid min-h-full gap-4 2xl:h-full 2xl:min-h-0 2xl:grid-cols-[minmax(0,1fr)_34rem] 2xl:overflow-hidden">
+        <div className="min-h-[32rem] min-w-0 overflow-hidden rounded-lg border border-white/70 shadow-sm 2xl:min-h-0">
           <Calendar
             events={events}
             onEntryDraftCreate={handleCreate}
@@ -119,7 +119,7 @@ export const DashboardPage = () => {
           />
         </div>
 
-        <div className="min-w-0">
+        <div className="min-h-[24rem] min-w-0 2xl:min-h-0 2xl:overflow-hidden">
           <ChatPanel />
         </div>
       </div>
