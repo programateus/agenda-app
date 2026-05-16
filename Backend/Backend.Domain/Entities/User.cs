@@ -10,6 +10,7 @@ public class User
     public DateTime UpdatedAt { get; private set; }
     
     public ICollection<Entry> Entries { get; private set; } = [];
+    public ICollection<Chat> Chats { get; private set; } = [];
     
     private User() { }
 
