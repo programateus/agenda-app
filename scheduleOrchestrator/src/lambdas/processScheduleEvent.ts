@@ -3,10 +3,13 @@ import { eventBridgeEnvelopeSchema } from "@src/schemas/envelope";
 import { handleEntryUpserted } from "@src/handlers/handleEntryUpserted";
 import { prisma } from "@src/infra/prisma";
 import { handleEntryOccurrenceUpserted } from "@src/handlers/handleEntryOccurrenceUpserted";
+import { handleEntryDeleted } from "@src/handlers/handleEntryDeleted";
+import { ScheduleEvent } from "./types";
 
-const handlers: Record<string, (detail: unknown) => Promise<void>> = {
+const handlers: Record<ScheduleEvent, (detail: unknown) => Promise<void>> = {
   ScheduleEntryCreated: handleEntryUpserted,
   ScheduleEntryUpdated: handleEntryUpserted,
+  ScheduleEntryDeleted: handleEntryDeleted,
   ScheduleEntryOccurrenceUpserted: handleEntryOccurrenceUpserted,
 };
 
@@ -25,7 +28,7 @@ export async function handler(event: SQSEvent): Promise<SQSBatchResponse> {
         continue;
       }
 
-      const eventHandler = handlers[envelope["detail-type"]];
+      const eventHandler = handlers[envelope["detail-type"] as ScheduleEvent];
 
       if (!eventHandler) {
         console.info("Ignoring unsupported event type", {

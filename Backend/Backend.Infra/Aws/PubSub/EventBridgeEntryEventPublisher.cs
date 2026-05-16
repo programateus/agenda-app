@@ -66,8 +66,27 @@ public class EventBridgeEntryEventPublisher: IEntryEventPublisher
         }
     }
 
-    public Task PublishDeletedAsync(Guid entryId, Guid userId, CancellationToken cancellationToken)
+    public async Task PublishDeletedAsync(Guid entryId, Guid userId, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var request = new PutEventsRequest
+        {
+            Entries =
+            [
+                new PutEventsRequestEntry
+                {
+                    EventBusName = _configuration["EventBridge:EventBusName"],
+                    Source = _configuration["EventBridge:Source"],
+                    DetailType = _configuration["EventBridge:DetailTypes:EntryDeleted"],
+                    Detail = JsonSerializer.Serialize(new { entryId, userId })
+                }
+            ]
+        };
+        var response = await _amazonEventBridge.PutEventsAsync(request, cancellationToken);
+        
+        if (response.FailedEntryCount > 0)
+        {
+            // TODO: handle error
+            throw new Exception("Failed to publish events");
+        }
     }
 }
