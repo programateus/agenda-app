@@ -54,7 +54,9 @@ public sealed class ScheduleCommandConsumer : BackgroundService
                     stoppingToken
                 );
 
-                foreach (var message in response.Messages)
+                var messages = response.Messages ?? [];
+
+                foreach (var message in messages)
                 {
                     await ProcessMessageAsync(queueUrl, message, stoppingToken);
                 }
@@ -298,4 +300,3 @@ public sealed class ScheduleCommandConsumer : BackgroundService
             cancellationToken);
     }
 }
-

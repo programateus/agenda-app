@@ -50,7 +50,9 @@ public sealed class ChatResponseEventConsumer : BackgroundService
                     stoppingToken
                 );
 
-                foreach (var message in response.Messages)
+                var messages = response.Messages ?? [];
+
+                foreach (var message in messages)
                 {
                     await ProcessMessageAsync(queueUrl, message, stoppingToken);
                 }
