@@ -478,7 +478,7 @@ const routeAfterResolving = (state: ScheduleAssistantStateType) => {
   return state.response ? "finish" : "prepare";
 };
 
-const graph = new StateGraph(ScheduleAssistantState)
+export const graph = new StateGraph(ScheduleAssistantState)
   .addNode("understand", understandRequest)
   .addNode("search", searchEvents)
   .addNode("resolve", resolveMutationTarget)
