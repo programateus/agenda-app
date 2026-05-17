@@ -1,7 +1,7 @@
 # Schedule
 
-Desde 2021 tive uma ideia de um projeto na época de usuários poderem ter um chat de assistente onde eles
-podiam pedir para esse assistente interagir com eventos num calendário, mas na época o ChatGPT ainda um sonho e ferramentas como TensorFlow eram difícieis de configurar para algo mais flexível. Hoje, finalmente, consegui fazer esse projeto. Esse projeto serve de estudos para tirar a ferrugem e voltar a praticar com AWS, orquestracao de agentes e integracao entre as peças. A ideia aqui e mais experimentar, montar fluxo local e ir ajustando no caminho do que fazer algo super fechado.
+Desde 2020 tive uma ideia de um projeto na época de usuários poderem ter um chat de assistente onde eles
+podiam pedir para esse assistente interagir com eventos num calendário, na época, isso parecia bem mais difícil. Hoje, com as LLMs finalmente consegui fazer esse pequeno projeto. Esse projeto serve para tirar a ferrugem e voltar a praticar com AWS, orquestracao de agentes e integracao entre cada parte do sistema. A ideia aqui e mais experimentar, montar fluxo local e ir ajustando no caminho do que fazer algo super fechado.
 
 ## O que tem aqui
 
@@ -44,6 +44,7 @@ npm run dev
 
 ```bash
 cd Backend
+dotnet ef database update --project Backend.Infra --startup-project
 dotnet run --project Backend.Lambda
 ```
 

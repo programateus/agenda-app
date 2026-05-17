@@ -5,6 +5,8 @@ import {
   Annotation,
   interrupt,
   isInterrupted,
+  START,
+  END,
 } from "@langchain/langgraph";
 import { ChatOpenAI } from "@langchain/openai";
 import {
@@ -486,14 +488,14 @@ export const graph = new StateGraph(ScheduleAssistantState)
   .addNode("review", reviewMutation)
   .addNode("execute", executeMutation)
   .addNode("finish", () => ({}))
-  .addEdge("__start__", "understand")
+  .addEdge(START, "understand")
   .addConditionalEdges("understand", routeAfterUnderstanding)
   .addConditionalEdges("resolve", routeAfterResolving)
   .addEdge("search", "finish")
   .addEdge("prepare", "review")
   .addEdge("review", "execute")
   .addEdge("execute", "finish")
-  .addEdge("finish", "__end__")
+  .addEdge("finish", END)
   .compile({
     checkpointer,
   });
