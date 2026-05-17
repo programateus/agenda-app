@@ -14,6 +14,9 @@ BACKEND_CHAT_QUEUE_NAME="backend-chat-response-queue"
 BACKEND_CHAT_DLQ_NAME="backend-chat-response-dlq"
 BACKEND_CHAT_RULE_NAME="backend-chat-response-rule"
 
+BACKEND_COMMAND_QUEUE_NAME="backend-schedule-commands-queue"
+BACKEND_COMMAND_DLQ_NAME="backend-schedule-commands-dlq"
+
 create_queue_with_dlq() {
   local queue_name="$1"
   local dlq_name="$2"
@@ -68,6 +71,9 @@ backend_chat_queue=$(create_queue_with_dlq "$BACKEND_CHAT_QUEUE_NAME" "$BACKEND_
 BACKEND_CHAT_QUEUE_URL="${backend_chat_queue%%|*}"
 BACKEND_CHAT_QUEUE_ARN="${backend_chat_queue##*|}"
 
+backend_command_queue=$(create_queue_with_dlq "$BACKEND_COMMAND_QUEUE_NAME" "$BACKEND_COMMAND_DLQ_NAME")
+BACKEND_COMMAND_QUEUE_URL="${backend_command_queue%%|*}"
+
 awslocal events put-rule \
   --name "$SCHEDULER_RULE_NAME" \
   --event-bus-name "$EVENT_BUS_NAME" \
@@ -120,3 +126,4 @@ awslocal events put-targets \
 
 echo "Scheduler queue URL: $SCHEDULER_QUEUE_URL"
 echo "Backend chat queue URL: $BACKEND_CHAT_QUEUE_URL"
+echo "Backend command queue URL: $BACKEND_COMMAND_QUEUE_URL"

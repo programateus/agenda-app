@@ -7,6 +7,7 @@ using Backend.Infra.Auth;
 using Backend.Lambda.EventBridge;
 using Backend.Lambda.Hubs;
 using Backend.Lambda.Realtime;
+using Backend.Lambda.ScheduleCommands;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
@@ -38,7 +39,9 @@ builder.Services.AddSignalR();
 builder.Services.AddApplication();
 builder.Services.AddInfra(builder.Configuration);
 builder.Services.AddScoped<IChatMessageNotifier, SignalRChatMessageNotifier>();
+builder.Services.AddScoped<ICalendarEventsNotifier, SignalRCalendarEventsNotifier>();
 builder.Services.AddHostedService<ChatResponseEventConsumer>();
+builder.Services.AddHostedService<ScheduleCommandConsumer>();
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

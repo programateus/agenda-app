@@ -20,6 +20,11 @@ export type ChatConnectionSnapshot = {
   joinedChatId: string | null;
 };
 
+export type CalendarEntriesChangedEvent = {
+  userId: string;
+  changedAt: string;
+};
+
 type ChatConnectionConfig = {
   accessToken: string | null;
   hubUrl: string | null;
@@ -33,6 +38,9 @@ class ChatConnectionStore {
   };
   private readonly listeners = new Set<() => void>();
   private readonly messageListeners = new Set<(message: ChatMessage) => void>();
+  private readonly calendarListeners = new Set<
+    (event: CalendarEntriesChangedEvent) => void
+  >();
   private snapshot: ChatConnectionSnapshot = {
     status: "idle",
     selectedChatId: null,
@@ -52,6 +60,16 @@ class ChatConnectionStore {
 
     return () => {
       this.messageListeners.delete(listener);
+    };
+  };
+
+  subscribeToCalendarEntriesChanged = (
+    listener: (event: CalendarEntriesChangedEvent) => void,
+  ) => {
+    this.calendarListeners.add(listener);
+
+    return () => {
+      this.calendarListeners.delete(listener);
     };
   };
 
@@ -165,6 +183,15 @@ class ChatConnectionStore {
         listener(message);
       });
     });
+
+    connection.on(
+      "CalendarEntriesChanged",
+      (event: CalendarEntriesChangedEvent) => {
+        this.calendarListeners.forEach((listener) => {
+          listener(event);
+        });
+      },
+    );
 
     connection.onreconnecting(() => {
       if (this.connection !== connection) {

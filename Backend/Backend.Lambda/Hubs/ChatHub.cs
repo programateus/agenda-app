@@ -15,6 +15,20 @@ public sealed class ChatHub : Hub
         _chatRepository = chatRepository;
     }
 
+    public override async Task OnConnectedAsync()
+    {
+        var userId = Context.User?.GetUserId();
+        if (userId is not null)
+        {
+            await Groups.AddToGroupAsync(
+                Context.ConnectionId,
+                GetUserGroupName(userId.Value),
+                Context.ConnectionAborted);
+        }
+
+        await base.OnConnectedAsync();
+    }
+
     public async Task JoinChat(string chatId)
     {
         var userId = Context.User?.GetUserId();
@@ -48,4 +62,5 @@ public sealed class ChatHub : Hub
     }
 
     public static string GetGroupName(Guid chatId) => $"chat:{chatId}";
+    public static string GetUserGroupName(Guid userId) => $"user:{userId}";
 }

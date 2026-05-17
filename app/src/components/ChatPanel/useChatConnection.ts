@@ -1,7 +1,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { chatQueryKeys } from "@/hooks/reactQuery/queryKeys";
+import { chatQueryKeys, queryKeys } from "@/hooks/reactQuery/queryKeys";
 import type { ListChatMessagesResponse } from "@/services/chats";
 
 import { chatConnectionStore } from "./chatConnectionStore";
@@ -57,6 +57,18 @@ export const useChatConnection = ({
         queryKey: chatQueryKeys.list,
       });
     });
+
+    return unsubscribe;
+  }, [queryClient]);
+
+  useEffect(() => {
+    const unsubscribe = chatConnectionStore.subscribeToCalendarEntriesChanged(
+      () => {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.entries.list._def,
+        });
+      },
+    );
 
     return unsubscribe;
   }, [queryClient]);

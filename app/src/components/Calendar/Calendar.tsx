@@ -299,7 +299,7 @@ export const Calendar = ({
   return (
     <div
       ref={calendarRef}
-      className="relative flex h-full flex-col bg-white p-2 space-y-2"
+      className="relative flex h-full flex-col bg-white p-2"
     >
       <CalendarToolbar
         activeView={activeView}
@@ -308,7 +308,7 @@ export const Calendar = ({
         title={controller.view?.title}
       />
 
-      <div className="min-h-0 flex-1 overflow-hidden">
+      <div className="min-h-0 flex-1 overflow-hidden pt-2">
         <FullCalendar
           controller={controller}
           dateClick={handleDateClick}

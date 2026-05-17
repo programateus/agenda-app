@@ -224,12 +224,9 @@ export const ChatPanel = () => {
             {isLoadingChats && <Spinner size="sm" />}
           </div>
 
-          <ScrollShadow
-            className="min-h-0 flex-1 pb-1"
-            orientation="horizontal"
-          >
+          <ScrollShadow className="min-h-0 flex-1 pb-1" orientation="vertical">
             <div
-              className="flex gap-2 px-2 py-4"
+              className="flex flex-col gap-2 px-2 py-4"
               role="tablist"
               aria-label="Chat list"
             >
@@ -245,13 +242,13 @@ export const ChatPanel = () => {
                     aria-controls={`chat-panel-${chat.id}`}
                     onClick={() => handleSelectChat(chat.id)}
                     className={[
-                      "w-56 shrink-0 rounded-lg border px-3 py-3 text-left transition sm:w-64",
+                      "w-full h-12 shrink-0 rounded-lg border px-3 py-3 text-left transition",
                       isActive
                         ? "border-primary bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20"
                         : "border-default-200 bg-white hover:border-default-300 hover:bg-default-100/80",
                     ].join(" ")}
                   >
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
                       <span
                         className={[
                           "text-sm font-semibold",
@@ -262,9 +259,31 @@ export const ChatPanel = () => {
                       >
                         {getChatTitle(index)}
                       </span>
+
+                      <p
+                        className={[
+                          "text-xs",
+                          isActive
+                            ? "text-primary-foreground/80"
+                            : "text-default-500",
+                        ].join(" ")}
+                      >
+                        Last activity
+                      </p>
+                      <p
+                        className={[
+                          "text-sm",
+                          isActive
+                            ? "text-primary-foreground"
+                            : "text-default-700",
+                        ].join(" ")}
+                      >
+                        {formatChatTimestamp(chat.lastMessageAt)}
+                      </p>
+
                       <Chip
                         className={[
-                          "border-none",
+                          "border-none ml-auto",
                           isActive
                             ? "bg-white/20 text-primary-foreground"
                             : "bg-default-100 text-default-700",
@@ -273,26 +292,6 @@ export const ChatPanel = () => {
                         {isActive ? "Active" : chat.status}
                       </Chip>
                     </div>
-                    <p
-                      className={[
-                        "mt-2 text-xs",
-                        isActive
-                          ? "text-primary-foreground/80"
-                          : "text-default-500",
-                      ].join(" ")}
-                    >
-                      Last activity
-                    </p>
-                    <p
-                      className={[
-                        "text-sm",
-                        isActive
-                          ? "text-primary-foreground"
-                          : "text-default-700",
-                      ].join(" ")}
-                    >
-                      {formatChatTimestamp(chat.lastMessageAt)}
-                    </p>
                   </button>
                 );
               })}

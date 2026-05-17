@@ -9,6 +9,7 @@ const envSchema = z.object({
   EVENT_BRIDGE_SOURCE: z.string(),
   BACKEND_COMMANDS_QUEUE_URL: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
+  OPENAI_MODEL: z.string().default("gpt-4.1-mini"),
   SCHEDULE_ORCHESTRATOR_EVENTS_QUEUE_URL: z.string().optional(),
 });
 
